@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network & Web Security — Unit 1 Exam</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f2ee;
+    --surface: #ffffff;
+    --card: #fdfcfb;
+    --border: #e4ddd4;
+    --border2: #d4cbc0;
+    --text: #1a1612;
+    --sub: #7a6f65;
+    --mono: 'DM Mono', monospace;
+
+    --c1: #c0392b;   /* CIA Red */
+    --c1l: rgba(192,57,43,.08);
+    --c1b: rgba(192,57,43,.18);
+    --c2: #1565c0;   /* Attacks Blue */
+    --c2l: rgba(21,101,192,.08);
+    --c2b: rgba(21,101,192,.18);
+    --c3: #2e7d32;   /* Crypto Green */
+    --c3l: rgba(46,125,50,.08);
+    --c3b: rgba(46,125,50,.18);
+    --c4: #6a1499;   /* Mechanisms Purple */
+    --c4l: rgba(106,20,153,.08);
+    --c4b: rgba(106,20,153,.18);
+
+    --ok: #2e7d32;
+    --err: #c0392b;
+    --warn: #e67e22;
+    --gold: #b8860b;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(circle at 15% 20%, rgba(192,57,43,.04) 0%, transparent 50%),
+      radial-gradient(circle at 85% 80%, rgba(21,101,192,.04) 0%, transparent 50%);
+  }
+
+  .shell { display: flex; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 280px; flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1.5px solid var(--border);
+    padding: 20px 16px;
+    display: flex; flex-direction: column; gap: 14px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+
+  .logo {
+    background: linear-gradient(135deg, #c0392b 0%, #1565c0 100%);
+    border-radius: 12px; padding: 16px 18px; position: relative; overflow: hidden;
+  }
+  .logo::after {
+    content: '🔐';
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 28px; opacity: .25;
+  }
+  .logo-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: #fff; line-height: 1.3; }
+  .logo-sub { font-size: 10px; color: rgba(255,255,255,.75); font-family: var(--mono); margin-top: 4px; }
+
+  .grid-label { font-size: 10px; font-family: var(--mono); color: var(--sub); text-transform: uppercase; letter-spacing: 1.2px; }
+
+  .palette { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+  .pb {
+    aspect-ratio: 1; border-radius: 6px; font-size: 9px; font-weight: 600;
+    cursor: pointer; border: none; font-family: var(--mono);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .1s, box-shadow .1s; color: #fff;
+  }
+  .pb:hover { transform: scale(1.18); box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+  .pb.nv { background: #ede8e2; color: #b0a898; border: 1.5px solid var(--border2); }
+  .pb.a1 { background: var(--c1); }
+  .pb.a2 { background: var(--c2); }
+  .pb.a3 { background: var(--c3); }
+  .pb.a4 { background: var(--c4); }
+  .pb.fl { background: #e67e22; }
+  .pb.sk { background: #aaa; }
+  .pb.cur { outline: 2.5px solid var(--gold); outline-offset: 2px; }
+
+  .legend { display: flex; flex-direction: column; gap: 5px; }
+  .leg { display: flex; align-items: center; gap: 8px; font-size: 10.5px; color: var(--sub); }
+  .dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+  .stats-block {
+    background: var(--bg); border-radius: 10px;
+    padding: 12px 14px; border: 1.5px solid var(--border);
+  }
+  .sr { display: flex; justify-content: space-between; font-size: 11px; padding: 3px 0; color: var(--sub); }
+  .sv { font-weight: 700; font-family: var(--mono); color: var(--text); }
+
+  .jump-sel {
+    width: 100%; background: var(--bg); color: var(--text);
+    border: 1.5px solid var(--border2); border-radius: 8px;
+    padding: 8px 10px; font-size: 10px; font-family: var(--mono); cursor: pointer;
+  }
+
+  .btn-sub {
+    width: 100%;
+    background: linear-gradient(135deg, var(--c1), #8b0000);
+    color: white; border: none; border-radius: 10px; padding: 13px;
+    font-weight: 700; font-size: 13px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: opacity .2s, transform .15s;
+    letter-spacing: .3px; box-shadow: 0 4px 14px rgba(192,57,43,.25);
+  }
+  .btn-sub:hover { opacity: .9; transform: translateY(-1px); }
+
+  /* ── MAIN ── */
+  .main { flex: 1; padding: 28px 40px; max-width: 860px; }
+
+  .exam-banner {
+    background: var(--surface);
+    border: 1.5px solid var(--border); border-radius: 16px;
+    padding: 22px 30px; display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.05);
+    position: relative; overflow: hidden;
+  }
+  .exam-banner::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: linear-gradient(180deg, var(--c1), var(--c2));
+    border-radius: 4px 0 0 4px;
+  }
+  .banner-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; font-weight: 700; color: var(--text);
+  }
+  .banner-sub { font-size: 10px; color: var(--sub); font-family: var(--mono); margin-top: 5px; }
+  .q-num { font-size: 38px; font-weight: 900; font-family: var(--mono); color: var(--text); line-height: 1; }
+  .q-topic-label { font-size: 10px; color: var(--sub); margin-top: 4px; text-align: right; }
+
+  .prog-track { height: 4px; background: var(--border); border-radius: 3px; margin-bottom: 20px; overflow: hidden; }
+  .prog-fill { height: 100%; background: linear-gradient(90deg, var(--c1), var(--c2), var(--c3)); transition: width .35s ease; }
+
+  .q-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 26px 28px; margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.04);
+  }
+  .q-meta { display: flex; gap: 7px; margin-bottom: 14px; flex-wrap: wrap; }
+  .badge {
+    padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600;
+    letter-spacing: .5px; text-transform: uppercase; font-family: var(--mono);
+  }
+  .b1 { background: var(--c1l); color: var(--c1); border: 1px solid var(--c1b); }
+  .b2 { background: var(--c2l); color: var(--c2); border: 1px solid var(--c2b); }
+  .b3 { background: var(--c3l); color: var(--c3); border: 1px solid var(--c3b); }
+  .b4 { background: var(--c4l); color: var(--c4); border: 1px solid var(--c4b); }
+  .bt { background: rgba(122,111,101,.08); color: var(--sub); border: 1px solid rgba(122,111,101,.2); }
+
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; font-weight: 600; line-height: 1.75; color: var(--text);
+  }
+
+  .opts-label { font-size: 10px; font-weight: 700; color: var(--sub); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 10px; font-family: var(--mono); }
+
+  .opt {
+    display: block; width: 100%; background: var(--card);
+    border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 13px 18px; text-align: left; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
+    margin-bottom: 8px; transition: all .15s; font-weight: 400; line-height: 1.55;
+  }
+  .opt:hover { border-color: var(--border2); background: #faf8f5; transform: translateX(3px); }
+  .opt.s1 { background: var(--c1l); border-color: var(--c1); color: var(--c1); font-weight: 600; }
+  .opt.s2 { background: var(--c2l); border-color: var(--c2); color: var(--c2); font-weight: 600; }
+  .opt.s3 { background: var(--c3l); border-color: var(--c3); color: var(--c3); font-weight: 600; }
+  .opt.s4 { background: var(--c4l); border-color: var(--c4); color: var(--c4); font-weight: 600; }
+
+  .nav-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .nb {
+    flex: 1; background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 9px; padding: 10px 6px; font-weight: 600; font-size: 11px;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s;
+    color: var(--text); white-space: nowrap;
+  }
+  .nb:hover:not(:disabled) { background: var(--bg); border-color: var(--border2); }
+  .nb:disabled { opacity: .3; cursor: not-allowed; }
+  .nb.fl-btn { color: var(--warn); border-color: rgba(230,126,34,.3); }
+  .nb.fl-btn.on { background: rgba(230,126,34,.08); }
+  .nb.cl-btn { color: var(--err); border-color: rgba(192,57,43,.25); display: none; }
+
+  .sbar {
+    text-align: center; font-size: 11px; color: var(--sub);
+    padding: 9px; font-family: var(--mono);
+    background: var(--surface); border-radius: 9px; margin-top: 10px;
+    border: 1.5px solid var(--border);
+  }
+
+  /* ── RESULTS ── */
+  #results { display: none; padding: 30px 40px; max-width: 1000px; margin: 0 auto; }
+
+  .res-hero {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 20px; padding: 40px; text-align: center;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.06);
+    position: relative; overflow: hidden;
+  }
+  .res-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 50%, rgba(192,57,43,.06), transparent 60%),
+      radial-gradient(ellipse at 80% 50%, rgba(21,101,192,.06), transparent 60%);
+  }
+  .score-big {
+    font-family: 'Playfair Display', serif;
+    font-size: 90px; font-weight: 900; line-height: 1;
+    color: var(--text); position: relative;
+  }
+  .score-pct { font-size: 22px; margin-top: 10px; color: var(--sub); font-family: 'DM Sans', sans-serif; position: relative; }
+
+  .sg { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 24px; }
+  .sc { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 16px 8px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+  .sc .v { font-size: 26px; font-weight: 900; font-family: var(--mono); }
+  .sc .l { font-size: 9px; color: var(--sub); margin-top: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+
+  .sh {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; font-weight: 700; margin: 24px 0 14px;
+    padding-bottom: 8px; border-bottom: 2px solid var(--border); color: var(--text);
+  }
+
+  .ri { background: var(--surface); border-radius: 12px; padding: 18px 22px; margin-bottom: 12px; border: 1.5px solid var(--border); }
+  .ri.co { border-left: 4px solid var(--ok); }
+  .ri.wr { border-left: 4px solid var(--err); }
+  .ri.sk { border-left: 4px solid #aaa; }
+  .rt { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .rq { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 600; margin-bottom: 10px; line-height: 1.65; color: var(--text); }
+  .ab { border-radius: 8px; padding: 9px 14px; font-size: 13px; font-weight: 500; margin-top: 5px; }
+  .ac { background: rgba(46,125,50,.08); color: var(--ok); border: 1px solid rgba(46,125,50,.2); }
+  .aw { background: rgba(192,57,43,.08); color: var(--err); border: 1px solid rgba(192,57,43,.2); }
+  .rb {
+    background: rgba(230,126,34,.07); border-left: 3px solid var(--warn);
+    padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 11px;
+    color: #a0560e; margin-top: 8px; line-height: 1.85; font-family: var(--mono);
+  }
+  .btn-retake {
+    width: 100%;
+    background: linear-gradient(135deg, var(--c1), #8b0000);
+    color: white; border: none; border-radius: 12px; padding: 16px;
+    font-weight: 700; font-size: 15px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; margin-top: 18px; margin-bottom: 40px;
+    box-shadow: 0 4px 16px rgba(192,57,43,.25);
+    transition: opacity .2s, transform .15s;
+  }
+  .btn-retake:hover { opacity: .9; transform: translateY(-1px); }
+
+  @media(max-width: 720px) {
+    .shell { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: static; }
+    .main, #results { padding: 16px; }
+    .sg { grid-template-columns: repeat(3, 1fr); }
+    .score-big { font-size: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="exam-shell" class="shell">
+
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-title">Network & Web Security</div>
+      <div class="logo-sub">Unit 1 · 55 Questions</div>
+    </div>
+
+    <div class="grid-label">Question Map</div>
+    <div class="palette" id="palette"></div>
+
+    <div class="legend">
+      <div class="leg"><div class="dot" style="background:var(--c1)"></div> CIA / Concepts</div>
+      <div class="leg"><div class="dot" style="background:var(--c2)"></div> Attacks</div>
+      <div class="leg"><div class="dot" style="background:var(--c3)"></div> Cryptography</div>
+      <div class="leg"><div class="dot" style="background:var(--c4)"></div> Mechanisms</div>
+      <div class="leg"><div class="dot" style="background:var(--warn)"></div> Flagged</div>
+      <div class="leg"><div class="dot" style="background:#aaa"></div> Skipped</div>
+      <div class="leg"><div class="dot" style="background:#ede8e2;border:1.5px solid var(--border2)"></div> Not Visited</div>
+    </div>
+
+    <div class="stats-block" id="sb"></div>
+    <select class="jump-sel" id="jsel" onchange="go(+this.value)"></select>
+    <button class="btn-sub" onclick="submitExam()">🏁 Submit Exam</button>
+  </div>
+
+  <div class="main">
+    <div class="exam-banner">
+      <div class="banner-left">
+        <div class="banner-title">Network & Web Security — Unit 1</div>
+        <div class="banner-sub">CIA Triad · Threats · Attacks · Cryptography · Steganography</div>
+      </div>
+      <div class="banner-right">
+        <div class="q-num" id="qnum"></div>
+        <div class="q-topic-label" id="qtopic"></div>
+      </div>
+    </div>
+
+    <div class="prog-track"><div class="prog-fill" id="pbar"></div></div>
+
+    <div class="q-card">
+      <div class="q-meta" id="qmeta"></div>
+      <div class="q-text" id="qtext"></div>
+    </div>
+
+    <div class="opts-label">Select your answer:</div>
+    <div id="opts"></div>
+
+    <div class="nav-row">
+      <button class="nb" id="bfirst" onclick="go(0)" disabled>⏮ First</button>
+      <button class="nb" id="bprev" onclick="go(cur-1)" disabled>◀ Prev</button>
+      <button class="nb fl-btn" id="bflag" onclick="toggleFlag()">🚩 Flag</button>
+      <button class="nb cl-btn" id="bclear" onclick="clearSel()">✖ Clear</button>
+      <button class="nb" id="bnext" onclick="go(cur+1)">Next ▶</button>
+      <button class="nb" id="blast" onclick="go(TOTAL-1)">Last ⏭</button>
+    </div>
+    <div class="sbar" id="sbar"></div>
+  </div>
+</div>
+
+<div id="results"></div>
+
+<script>
+const L = ['A','B','C','D'];
+
+const QUESTIONS = [
+
+// ══════════════ SECTION 1: CIA TRIAD ══════════════
+{cat:"cia", topic:"CIA Triad",
+q:"The CIA Triad stands for which three foundational principles of information security?",
+options:["Cryptography, Integrity, Authentication","Confidentiality, Integrity, and Availability","Control, Identification, and Authorization","Certification, Inspection, and Auditing"],
+ans:1,
+reason:"The CIA Triad breaks information security into three core pillars: Confidentiality (limiting access to authorised parties), Integrity (ensuring data accuracy and trustworthiness), and Availability (ensuring authorised users can reliably access systems and data when needed)."},
+
+{cat:"cia", topic:"CIA Triad",
+q:"Which CIA Triad principle is PRIMARILY violated when a hacker eavesdrops on a private email conversation without modifying any data?",
+options:["Availability","Integrity","Confidentiality","Authentication"],
+ans:2,
+reason:"Confidentiality ensures sensitive information is accessible only to authorised individuals. Eavesdropping exposes private data to unauthorised parties, directly violating Confidentiality. Since no data is modified (Integrity is intact) and the service remains accessible (Availability is intact), Confidentiality is the principle breached."},
+
+{cat:"cia", topic:"CIA Triad",
+q:"A hospital's patient records database becomes inaccessible due to a ransomware attack. Which CIA Triad principle is MOST directly violated?",
+options:["Confidentiality","Integrity","Availability","Non-repudiation"],
+ans:2,
+reason:"Availability ensures authorised users have reliable, timely access to systems and data. A ransomware attack locking a database makes it inaccessible, directly violating Availability. Common threats to Availability include DoS/DDoS attacks, hardware failures, power outages, and ransomware."},
+
+{cat:"cia", topic:"CIA Triad",
+q:"An attacker modifies a financial transaction record stored in a database, changing the transfer amount from $100 to $10,000. Which CIA principle is violated?",
+options:["Availability","Confidentiality","Integrity","Accountability"],
+ans:2,
+reason:"Integrity guarantees that information is accurate, trustworthy, and has not been tampered with by unauthorised parties. Unauthorized modification of data (changing transaction amounts) is a direct violation of Integrity. Controls for Integrity include hashing (MD5, SHA), digital signatures, checksums, and version control."},
+
+{cat:"cia", topic:"CIA Triad",
+q:"Multi-Factor Authentication (MFA) and Role-Based Access Control (RBAC) are security controls primarily designed to enforce which CIA principle?",
+options:["Availability","Integrity","Confidentiality","Non-repudiation"],
+ans:2,
+reason:"Confidentiality ensures sensitive information is accessible only to authorised individuals. MFA strengthens authentication (only verified users get access), and RBAC limits what each user can see/do based on their role — both directly enforce Confidentiality by preventing unauthorised access to private data."},
+
+{cat:"cia", topic:"CIA Triad",
+q:"Which of the following BEST describes a potential conflict within the CIA Triad?",
+options:["Increasing integrity always improves availability","Strong encryption (Confidentiality) may slow down access speeds, reducing Availability","Availability controls can replace Integrity controls","Integrity and Confidentiality are always achieved together"],
+ans:1,
+reason:"The CIA Triad notes a real tension: measures that strengthen one pillar can weaken another. High-level encryption enforces Confidentiality but can introduce processing overhead, slowing down access speeds and thus impacting Availability. Security architects must balance these trade-offs."},
+
+{cat:"cia", topic:"CIA Triad",
+q:"Which security controls are associated with protecting Availability?",
+options:["Encryption, MFA, RBAC","Hashing, digital signatures, checksums","System redundancy (failover clusters), regular backups, disaster recovery plans, and load balancing","Antivirus, firewalls, access logs"],
+ans:2,
+reason:"Availability ensures service continuity even during failures. Its controls include: system redundancy (failover clusters so services continue if one server fails), regular backups (data recovery after loss), disaster recovery plans (restoration procedures), and Load Balancing (distributes traffic to prevent overload)."},
+
+// ══════════════ SECTION 2: THREATS, VULNERABILITIES, ATTACKS ══════════════
+{cat:"cia", topic:"Threats & Vulnerabilities",
+q:"In information security, what is the CORRECT relationship between a Threat, Vulnerability, and Attack?",
+options:["A vulnerability causes a threat, which causes an attack","A threat exploits a vulnerability to perform an attack, creating risk","An attack creates a vulnerability that enables threats","Threats and vulnerabilities are the same concept"],
+ans:1,
+reason:"The relationship: Threat + Vulnerability = Risk. A threat (e.g., a hacker) identifies a vulnerability (e.g., unpatched software) and performs an attack (e.g., malware installation) to cause a negative outcome (e.g., data theft). Understanding all three is essential for effective defence."},
+
+{cat:"cia", topic:"Threats & Vulnerabilities",
+q:"Which of the following is an example of a TECHNICAL vulnerability?",
+options:["Lack of employee security training","Susceptibility to phishing emails","Unpatched software, weak passwords, SQL injection flaws, or misconfigurations","Poor security policies and inadequate authentication procedures"],
+ans:2,
+reason:"Vulnerabilities are classified as Technical (unpatched software, weak passwords, SQL injection flaws, misconfigurations), Human (lack of training, susceptibility to phishing), or Process (poor security policies, inadequate authentication). Unpatched software is a classic technical vulnerability because it contains known flaws attackers can exploit."},
+
+{cat:"cia", topic:"Threats & Vulnerabilities",
+q:"An 'insider threat' in cybersecurity is classified as what type of threat?",
+options:["Unintentional threat","Intentional threat","Natural disaster","Technical vulnerability"],
+ans:1,
+reason:"Threats are categorised as Intentional (hackers, malware, insider threats — deliberate actors) or Unintentional (natural disasters, human error, system failures — non-deliberate). An insider threat is an intentional threat from someone within the organisation (employee, contractor) who deliberately exploits their access for malicious purposes."},
+
+// ══════════════ SECTION 3: PASSIVE vs ACTIVE ATTACKS ══════════════
+{cat:"atk", topic:"Passive vs Active Attacks",
+q:"The FUNDAMENTAL difference between Passive and Active attacks is:",
+options:["Passive attacks use software; active attacks use hardware","Passive attacks secretly observe/collect data without altering systems (targeting Confidentiality); active attacks directly modify, disrupt, or damage systems (targeting Integrity and Availability)","Passive attacks are more dangerous than active attacks","Active attacks are always performed remotely"],
+ans:1,
+reason:"Passive attacks (e.g., eavesdropping, network sniffing, traffic analysis) secretly monitor and gather data — they don't alter the system, making them hard to detect. Active attacks (e.g., DoS, malware, SQL injection) modify, disrupt, or damage systems — they cause noticeable changes and often alert victims."},
+
+{cat:"atk", topic:"Passive vs Active Attacks",
+q:"Which of the following is a PASSIVE attack?",
+options:["Denial-of-Service (DoS) attack","SQL Injection","Network sniffing and traffic analysis","Malware installation"],
+ans:2,
+reason:"Passive attacks include: Network sniffing (capturing packets on a network), traffic analysis (observing communication patterns), and port scanning. They target Confidentiality, are difficult to detect (they don't alter system state), and victims are usually not notified. DoS, SQL injection, and malware are active attacks."},
+
+{cat:"atk", topic:"Passive vs Active Attacks",
+q:"Why are Passive attacks particularly DIFFICULT to detect?",
+options:["They use advanced AI technology","They don't alter the system state — they only observe traffic, so no change is visible to monitoring tools or the victim","They are performed very quickly","They require insider access"],
+ans:1,
+reason:"Passive attacks are hard to detect because they leave no trace of modification — monitoring, IDS, and logging tools detect anomalies by looking for changes or unusual activity. Since passive attacks only observe without altering anything, standard detection mechanisms cannot notice them. This makes prevention (encryption) more effective than detection."},
+
+{cat:"atk", topic:"Passive vs Active Attacks",
+q:"Masquerading (impersonating a legitimate user) is classified as which type of attack?",
+options:["Passive attack — it only observes","Active attack — it involves actively deceiving the system to gain unauthorized access","Neither — it is a physical attack","Passive attack because it doesn't destroy data"],
+ans:1,
+reason:"Active attacks directly manipulate systems, data, or communications. Masquerading (spoofing) is an active attack where an attacker actively impersonates a legitimate entity to gain unauthorized access — deceiving the authentication mechanism. Other active attacks include DoS, malware, and SQL injection."},
+
+// ══════════════ SECTION 4: DoS and DDoS ══════════════
+{cat:"atk", topic:"DoS & DDoS",
+q:"What is the PRIMARY goal of a Denial of Service (DoS) attack?",
+options:["Steal confidential data from a server","Make a service unavailable to legitimate users by overwhelming it with traffic, exhausting its resources","Modify database records undetected","Install malware on client machines"],
+ans:1,
+reason:"DoS attacks aim to make a service unavailable — not to steal or modify data. They overwhelm a target server with excessive traffic or requests, consuming all available resources (bandwidth, CPU, memory), so legitimate users cannot access the service. This directly violates the Availability principle of the CIA Triad."},
+
+{cat:"atk", topic:"DoS & DDoS",
+q:"A DDoS (Distributed Denial of Service) attack differs from a DoS attack PRIMARILY in that:",
+options:["DDoS targets databases while DoS targets web servers","DDoS uses multiple geographically dispersed compromised systems (a botnet) to launch coordinated attacks, making it much harder to block and trace compared to a single-source DoS","DDoS is slower than DoS","DoS uses encryption while DDoS does not"],
+ans:1,
+reason:"DoS = single attacker/source, easier to block by blacklisting that IP. DDoS = hundreds/thousands of compromised machines (botnet) spread across the world launching coordinated floods simultaneously — the massive, distributed nature makes it exponentially harder to trace and block. DDoS attacks can generate traffic volumes that overwhelm even large infrastructure."},
+
+{cat:"atk", topic:"DoS & DDoS",
+q:"A BOTNET in the context of DDoS attacks is:",
+options:["A software tool used by network administrators to monitor traffic","A network of internet-connected devices infected with malware and controlled remotely by an attacker ('bot-herder') to perform coordinated malicious tasks like DDoS attacks without the owners' knowledge","A legitimate cloud computing service","A type of firewall system"],
+ans:1,
+reason:"A botnet is a network of 'zombie' devices (computers, IoT devices, etc.) infected with malware and secretly controlled by a bot-herder via Command & Control (C&C) software. The combined power of thousands of infected devices enables massive DDoS attacks, spam campaigns, data theft, and cryptocurrency mining — all without the device owners' awareness."},
+
+{cat:"atk", topic:"DoS & DDoS",
+q:"Which attack type uses HTTP GET/POST floods, volumetric bandwidth flooding, and protocol weaknesses (TCP handshake exploitation)?",
+options:["SQL Injection","Man-in-the-Middle","DoS/DDoS attack techniques","Replay attacks"],
+ans:2,
+reason:"DoS/DDoS attack methods include: HTTP Floods (overwhelming servers with GET/POST requests, e.g., Slowloris), Volumetric Attacks (flooding network bandwidth with massive traffic), and Protocol Attacks (exploiting network protocol weaknesses like the TCP three-way handshake — SYN flood attacks leave half-open connections that exhaust server resources)."},
+
+// ══════════════ SECTION 5: SPOOFING ══════════════
+{cat:"atk", topic:"Spoofing",
+q:"Spoofing in cybersecurity is BEST defined as:",
+options:["Flooding a network with excessive traffic","A cyberattack where an attacker disguises their identity by forging details (email addresses, IP addresses, caller ID, website URLs) to appear as a trusted, legitimate source, tricking victims into revealing information or taking harmful actions","Intercepting and reading network packets","Installing ransomware on a target system"],
+ans:1,
+reason:"Spoofing involves falsifying identity or source information to deceive victims. By impersonating a trusted entity, attackers exploit trust to manipulate victims into clicking malicious links, downloading malware, revealing credentials, or transferring money. Common types: Email spoofing, IP spoofing, DNS spoofing, Caller ID spoofing, Website spoofing."},
+
+{cat:"atk", topic:"Spoofing",
+q:"Which of the following is a tell-tale sign of EMAIL SPOOFING?",
+options:["The email has perfect grammar and formatting","Suspicious sender addresses with slight misspellings or extra characters (e.g., 'Amaz0n.com'), requests for urgent action, and URLs that appear legitimate but lead to malicious sites","The email was received at an unusual time","The email contains company logos"],
+ans:1,
+reason:"Email spoofing red flags: slightly misspelled sender addresses (amaz0n.com instead of amazon.com), unexpected requests for credentials/money/urgent action, URLs that look real but redirect to fake sites (always hover to check), poor grammar, and requests to bypass normal procedures. Attackers create false urgency to prevent careful examination."},
+
+{cat:"atk", topic:"Spoofing",
+q:"IP Spoofing is used by attackers to:",
+options:["Steal encryption keys","Fake IP addresses to bypass security controls, hide the attacker's identity, or impersonate a trusted source in network communications","Intercept emails","Break database encryption"],
+ans:1,
+reason:"IP spoofing involves sending packets with a falsified source IP address — the packet appears to come from a trusted/legitimate IP. Uses: bypassing IP-based firewalls and access controls, hiding the attacker's real location, and amplifying DDoS attacks (the spoofed return address floods the victim with responses from innocent servers)."},
+
+// ══════════════ SECTION 6: MAN-IN-THE-MIDDLE ══════════════
+{cat:"atk", topic:"Man-in-the-Middle",
+q:"In a Man-in-the-Middle (MitM) attack, the attacker:",
+options:["Directly breaks into the target server and steals data","Secretly inserts themselves between two communicating parties, intercepting and potentially reading, modifying, or relaying their communication while both parties believe they are communicating directly with each other","Sends massive traffic to overwhelm a server","Plants a virus on the victim's computer through email"],
+ans:1,
+reason:"MitM attacks work via interception + impersonation: the attacker positions between (e.g.) a user and a bank website, impersonates the bank to the user AND the user to the bank, creating two separate connections. All data passing through is visible/modifiable. Examples: Wi-Fi eavesdropping, DNS spoofing, HTTPS spoofing, session hijacking."},
+
+{cat:"atk", topic:"Man-in-the-Middle",
+q:"Setting up a fake Wi-Fi hotspot (an 'evil twin') to intercept traffic from users who connect to it is an example of which type of attack?",
+options:["SQL Injection","Replay Attack","Wi-Fi Eavesdropping — a form of Man-in-the-Middle attack","Phishing email attack"],
+ans:2,
+reason:"Wi-Fi eavesdropping / evil twin attacks: the attacker creates a rogue access point with a legitimate-looking name (e.g., 'Airport_Free_WiFi'). Users connecting to it route all their traffic through the attacker, enabling MitM capabilities — credential theft, session hijacking, and traffic monitoring. This is why public Wi-Fi is dangerous for sensitive transactions."},
+
+{cat:"atk", topic:"Man-in-the-Middle",
+q:"Which of the following BEST prevents Man-in-the-Middle attacks?",
+options:["Using strong passwords only","Using HTTPS and VPNs (especially on public Wi-Fi), enabling Multi-Factor Authentication, keeping software updated, and using strong wireless encryption","Avoiding the use of email","Using longer passwords"],
+ans:1,
+reason:"MitM prevention strategies: HTTPS (TLS encryption makes intercepted traffic unreadable), VPNs (encrypt all traffic even on untrusted networks), MFA (even if credentials are stolen, attacker cannot authenticate), software updates (patch known vulnerabilities in browsers and OS), and strong encryption on wireless networks (WPA3)."},
+
+{cat:"atk", topic:"Man-in-the-Middle",
+q:"Session Hijacking as a MitM technique involves:",
+options:["Guessing the user's password","Stealing authenticated session cookies to take over an already established, active user session — allowing the attacker to act as the authenticated user without knowing their credentials","Modifying the web server's source code","Breaking SSL/TLS encryption"],
+ans:1,
+reason:"Session hijacking: after a user logs in, the server issues a session cookie. An attacker who steals this cookie (via MitM, XSS, or network sniffing) can replay it to the server, impersonating the authenticated user — bypassing the login process entirely. The server trusts the session cookie, not the device or IP."},
+
+// ══════════════ SECTION 7: REPLAY ATTACKS ══════════════
+{cat:"atk", topic:"Replay Attack",
+q:"A Replay Attack is BEST described as:",
+options:["An attack that repeats the same SQL query multiple times to overload a database","An attack where an attacker intercepts a valid network transmission and maliciously re-transmits it later, making the receiver accept it as a new, legitimate communication — with the client receiving the message twice","An attack that floods the network with duplicate packets to cause DoS","An attack that replays a recorded video of a user to bypass facial recognition"],
+ans:1,
+reason:"Replay Attack: the attacker captures a valid transmission (e.g., an authentication message, a fund transfer command) and re-transmits it at a later time. The receiver cannot distinguish the replayed message from a legitimate one, causing it to execute the action again. The name comes from the fact that the original message is 'replayed.'"},
+
+{cat:"atk", topic:"Replay Attack",
+q:"Which of the following is the MOST effective prevention against Replay Attacks?",
+options:["Using longer passwords","Using timestamps, one-time session keys (session tokens), or digital signatures with timestamps — ensuring each message is unique and time-bound so replayed messages are automatically rejected","Using stronger firewalls","Increasing encryption key length"],
+ans:1,
+reason:"Replay attack prevention: (1) Timestamp Method — attach a timestamp; if it exceeds a threshold, discard the message; (2) Session Key Method — use a one-time session key per transaction that cannot be reused; (3) Digital Signatures with Timestamps — cryptographically bind a timestamp to the message. Banking OTPs use the time-bound one-time password approach."},
+
+// ══════════════ SECTION 8: SECURITY SERVICES & MECHANISMS ══════════════
+{cat:"mec", topic:"Security Mechanisms",
+q:"What is the DIFFERENCE between Specific Security Mechanisms and Pervasive Security Mechanisms?",
+options:["Specific mechanisms are stronger than pervasive ones","Specific mechanisms operate at particular OSI layers providing targeted security services (e.g., encipherment, digital signatures); Pervasive mechanisms apply across all layers supporting overall system security (e.g., audit trails, event detection)","Pervasive mechanisms use cryptography; specific mechanisms do not","They are identical — the terms are interchangeable"],
+ans:1,
+reason:"Specific Security Mechanisms are tied to specific protocol layers and provide specific services: encipherment, access control, notarization, data integrity, authentication exchange, digital signatures, bit stuffing. Pervasive Security Mechanisms apply system-wide regardless of layer: trusted functionality, security labels, event detection, audit trails, security recovery."},
+
+{cat:"mec", topic:"Security Mechanisms",
+q:"NOTARIZATION as a security mechanism involves:",
+options:["Sending data in encrypted form","Using a trusted third party to validate communications and maintain transaction records to resolve disputes and provide non-repudiation","Checking data checksums for integrity","Monitoring logs for suspicious activity"],
+ans:1,
+reason:"Notarization uses a mutually trusted third party to validate, store, and mediate communications. It ensures non-repudiation — neither sender nor receiver can deny a transaction occurred, because the notary holds independent records. It's analogous to a notary public in legal transactions certifying the authenticity of documents."},
+
+{cat:"mec", topic:"Security Mechanisms",
+q:"A SECURITY AUDIT TRAIL is a pervasive security mechanism that:",
+options:["Encrypts all outgoing data","Maintains comprehensive logs of system activities (logins, file accesses, changes) useful for monitoring, forensic investigation, accountability, and detecting unauthorised actions after the fact","Prevents DoS attacks by rate-limiting","Automatically restores systems after a breach"],
+ans:1,
+reason:"Security Audit Trails are logs of all significant system events — who logged in, what files were accessed, what changes were made, when. They support: accountability (who did what), forensic investigation (reconstruct incidents), compliance auditing (regulatory requirements), and intrusion detection (spotting unusual patterns in historical data)."},
+
+{cat:"mec", topic:"Security Mechanisms",
+q:"ENCIPHERMENT as a specific security mechanism PRIMARILY provides which security service?",
+options:["Availability","Authentication","Confidentiality — by converting readable plaintext into unreadable ciphertext using cryptographic algorithms","Integrity verification"],
+ans:2,
+reason:"Encipherment (encryption) directly addresses Confidentiality by making data unreadable to unauthorised parties. Its strength depends on the algorithm used and the key length. It can be applied at rest (stored data) and in transit (network communications). It is the most fundamental technical control for Confidentiality."},
+
+{cat:"mec", topic:"Security Mechanisms",
+q:"BIT STUFFING as a security mechanism is used for:",
+options:["Encrypting data at the application layer","Adding extra bits to data streams for error detection and correction, commonly using parity checks (even or odd parity)","Compressing data to save bandwidth","Authenticating the sender's identity"],
+ans:1,
+reason:"Bit stuffing is a data integrity mechanism at the data link layer. By inserting extra bits, it enables error detection — the receiver checks parity and can identify if bits were flipped during transmission. It ensures data Integrity at the physical/link layer level, complementing higher-layer integrity mechanisms like checksums and hashing."},
+
+// ══════════════ SECTION 9: STEGANOGRAPHY ══════════════
+{cat:"mec", topic:"Steganography",
+q:"Steganography differs from Cryptography in that:",
+options:["Steganography uses stronger algorithms than cryptography","Cryptography scrambles data (making it unreadable but visible); Steganography hides the very EXISTENCE of the message within an ordinary file (e.g., an image or audio file), making it undetectable to casual observation","Steganography is faster to process","Cryptography hides messages while steganography encrypts them"],
+ans:1,
+reason:"The fundamental distinction: Cryptography makes a message unreadable (scrambled — the existence of an encrypted message is obvious as a jumble of characters). Steganography hides the message's existence within a cover file (image, audio, video) — a casual observer sees only a normal image. They are often combined: encrypt first, then hide, for maximum security."},
+
+{cat:"mec", topic:"Steganography",
+q:"The Least Significant Bit (LSB) technique in image steganography works by:",
+options:["Deleting pixels from the image to make room for hidden data","Subtly modifying the last bit of each pixel's colour value to encode secret message bits — the change is imperceptible to the human eye since altering the LSB changes a pixel's colour by only 1/256th of the intensity","Compressing the image to hide extra data in the header","Adding a second invisible layer to the image file"],
+ans:1,
+reason:"LSB steganography: each pixel's colour is represented by bytes (e.g., RGB). Changing only the last bit (e.g., changing 10110101 to 10110100) alters the colour by just 1 unit — invisible to human perception. By systematically modifying LSBs across pixels, a hidden message can be encoded in the stego-image, which looks identical to the original."},
+
+{cat:"mec", topic:"Steganography",
+q:"Which of the following is a LEGITIMATE use of Steganography?",
+options:["Delivering malware in images","Digital watermarking — embedding invisible marks to prove ownership, track illegal copies of digital media (images, videos), or verify file authenticity","Hiding ransomware commands in audio files","Exfiltrating stolen data covertly"],
+ans:1,
+reason:"Legitimate uses of steganography: Digital Watermarking (invisible ownership marks in images/video for copyright protection), Secure Communication (covert message transmission, bypassing censorship), Authentication (verifying file authenticity). Malicious uses: malware delivery (hiding C&C instructions in images) and data exfiltration (embedding stolen data in outgoing files)."},
+
+{cat:"mec", topic:"Steganography",
+q:"In the steganography process, what is a 'Stego-Object'?",
+options:["The secret message before it is hidden","The cryptographic key used to hide the message","The resulting output file (e.g., an image) that appears normal to observers but contains the hidden secret message embedded within it","The algorithm used to detect hidden messages"],
+ans:2,
+reason:"Steganography process: (1) Cover Object — innocent file (image, audio, video); (2) Secret Message — data to hide; (3) Embedding — hide message in cover object's redundant bits; (4) Stego-Object — the resulting file (looks identical to the cover object but contains the hidden message); (5) Extraction — decoder uses a key to extract the message from the stego-object."},
+
+// ══════════════ SECTION 10: SYMMETRIC ENCRYPTION ══════════════
+{cat:"cry", topic:"Symmetric Encryption",
+q:"Symmetric Encryption is characterised by:",
+options:["Using two mathematically linked keys (public and private)","Using a single shared secret key for both encryption AND decryption — the same key must be securely shared between sender and receiver","Using no keys — it relies on complex algorithms only","Using a public key for encryption and no key for decryption"],
+ans:1,
+reason:"Symmetric encryption (also called secret-key encryption) uses one key for both locking and unlocking. Both communicating parties must possess the same secret key. Its strengths: very fast, low computational overhead, ideal for bulk data encryption (hard drives, databases). Its main weakness: secure key distribution — if the key is intercepted during sharing, the entire system is compromised."},
+
+{cat:"cry", topic:"Symmetric Encryption",
+q:"The BIGGEST weakness of Symmetric Encryption is:",
+options:["It is too slow for practical use","The key distribution problem — securely sharing the secret key between parties without it being intercepted. If intercepted during transmission, the entire encrypted communication is compromised","It cannot encrypt large files","It provides no confidentiality protection"],
+ans:1,
+reason:"Key distribution is symmetric encryption's Achilles' heel. To communicate securely, both parties need the same secret key — but how do you share it securely without a secure channel? (If you had a secure channel, you wouldn't need encryption.) Asymmetric encryption solved this problem by allowing public keys to be shared openly, resolving the key exchange dilemma."},
+
+{cat:"cry", topic:"Symmetric Encryption",
+q:"Which of the following are examples of Symmetric Encryption algorithms?",
+options:["RSA, ECC, Diffie-Hellman","AES (Advanced Encryption Standard), DES (Data Encryption Standard), and Blowfish","MD5, SHA-256, SHA-512","SSL, TLS, HTTPS"],
+ans:1,
+reason:"Symmetric algorithms use one key for both encryption and decryption: AES (current gold standard — 128/192/256-bit keys), DES (legacy — 56-bit key, now insecure), 3DES (Triple DES — applies DES three times, legacy stopgap), Blowfish, RC4. Asymmetric algorithms (RSA, ECC, Diffie-Hellman) use key pairs. MD5/SHA are hash functions, not encryption algorithms."},
+
+{cat:"cry", topic:"Symmetric Encryption",
+q:"Symmetric encryption is MOST suitable for which use case?",
+options:["Establishing secure connections over the internet for the first time between unknown parties","Encrypting large volumes of data at rest (hard drives, databases, files) where high speed and efficiency are required and the key has already been securely shared","Creating digital signatures for email authentication","Distributing public keys to unknown recipients"],
+ans:1,
+reason:"Symmetric encryption's strength — speed — makes it ideal for bulk data encryption: full-disk encryption (BitLocker, FileVault), database encryption, file encryption, and data at rest. Its weakness (key distribution) limits its use for initial key exchange with unknown parties. That's why HTTPS uses asymmetric encryption for the handshake, then symmetric encryption for bulk data transfer."},
+
+// ══════════════ SECTION 11: ASYMMETRIC ENCRYPTION ══════════════
+{cat:"cry", topic:"Asymmetric Encryption",
+q:"In Asymmetric Encryption (Public-Key Cryptography), the relationship between the two keys is:",
+options:["They are identical — both encrypt and decrypt equally","They are mathematically linked: a message encrypted with the PUBLIC key can ONLY be decrypted by the corresponding PRIVATE key — the private key must never be shared while the public key can be distributed freely","The private key encrypts; the public key decrypts (always)","They are randomly generated and unrelated"],
+ans:1,
+reason:"Asymmetric encryption uses a mathematically linked key pair. The public key (freely distributed) encrypts data; only the paired private key (kept secret by the owner) can decrypt it. This solves symmetric encryption's key distribution problem — anyone can send an encrypted message using the public key, but only the holder of the private key can read it."},
+
+{cat:"cry", topic:"Asymmetric Encryption",
+q:"Which of the following are examples of Asymmetric Encryption algorithms?",
+options:["AES, DES, Blowfish","RSA (Rivest-Shamir-Adleman), ECC (Elliptic Curve Cryptography), and Diffie-Hellman","MD5, SHA-1, SHA-256","3DES, RC4, ChaCha20"],
+ans:1,
+reason:"Asymmetric (public-key) algorithms: RSA (most widely used, relies on difficulty of factoring large numbers), ECC (Elliptic Curve — same security as RSA with shorter keys, faster), Diffie-Hellman (key exchange protocol, not full encryption). Symmetric algorithms: AES, DES, Blowfish, 3DES, RC4. Hash functions (not encryption): MD5, SHA family."},
+
+{cat:"cry", topic:"Asymmetric Encryption",
+q:"NON-REPUDIATION in the context of asymmetric encryption means:",
+options:["The ability to encrypt data twice for extra security","The sender cannot deny having sent a message — since only they possess their private key, a digital signature made with their private key cryptographically proves they sent the message","The receiver cannot decrypt the message","Encrypted data cannot be modified"],
+ans:1,
+reason:"Non-repudiation: a sender cannot later deny sending a message. Digital signatures work by the sender signing with their PRIVATE key (only they have it); the receiver verifies with the sender's public key. Since only the sender controls their private key, the signature is cryptographic proof of authorship — the sender cannot repudiate (deny) it."},
+
+{cat:"cry", topic:"Asymmetric Encryption",
+q:"The MAIN weakness of Asymmetric Encryption is:",
+options:["It cannot provide confidentiality","It is resource-intensive and significantly slower than symmetric encryption, making it impractical for encrypting large amounts of data directly","It requires both parties to share a secret key","Public keys must be kept secret"],
+ans:1,
+reason:"Asymmetric encryption's computational cost is high due to complex mathematical operations (large prime factorisation for RSA, elliptic curve operations for ECC). This makes it 100-1000x slower than symmetric encryption for bulk data. Therefore, it is used selectively: for key exchange, digital signatures, and certificate verification — NOT for encrypting gigabytes of data."},
+
+{cat:"cry", topic:"Asymmetric Encryption",
+q:"The HYBRID approach used in HTTPS (SSL/TLS) combines symmetric and asymmetric encryption by:",
+options:["Using only asymmetric encryption throughout the connection","Using asymmetric encryption for the handshake to securely exchange a temporary symmetric session key, then using symmetric encryption to encrypt the actual bulk data transfer — getting the benefits of both approaches","Using symmetric encryption for the handshake and asymmetric for data","Using two symmetric keys simultaneously"],
+ans:1,
+reason:"HTTPS hybrid approach solves the dilemma: asymmetric encryption is used during the TLS handshake to securely exchange a random session key (no prior shared secret needed — public keys solve the distribution problem). Once the session key is established, symmetric encryption (fast, efficient) encrypts all actual data. This gives security of asymmetric + speed of symmetric."},
+
+// ══════════════ SECTION 12: DES vs AES ══════════════
+{cat:"cry", topic:"DES & AES",
+q:"The Data Encryption Standard (DES) is considered INSECURE today primarily because:",
+options:["It uses too long a key and is too slow","Its 56-bit key size is too small — modern computing power can exhaust all possible key combinations (brute-force attack) in a feasible time, making DES cryptographically broken","It uses a Feistel structure that was found to be flawed","DES cannot encrypt text data"],
+ans:1,
+reason:"DES uses a 56-bit key, meaning 2^56 ≈ 72 quadrillion possible keys. While this seemed large in 1977, modern computers/hardware (especially GPUs and custom ASICs) can exhaustively search all combinations in hours. The EFF's 'Deep Crack' machine broke DES in 22 hours in 1998. DES is now deprecated and replaced by AES for secure communications."},
+
+{cat:"cry", topic:"DES & AES",
+q:"Which of the following CORRECTLY compares DES and AES?",
+options:["DES uses 128-bit keys; AES uses 56-bit keys","DES encrypts 128-bit blocks; AES encrypts 64-bit blocks","AES supports 128, 192, or 256-bit keys and processes 128-bit blocks; DES uses a 56-bit key and processes 64-bit blocks — making AES exponentially more secure","DES and AES have equivalent security levels"],
+ans:2,
+reason:"DES: 56-bit key, 64-bit block size, 16 rounds (Feistel structure) — now insecure. AES: 128/192/256-bit keys, 128-bit block size, 10/12/14 rounds (Substitution-Permutation Network, depending on key size) — highly secure, current global standard. AES was selected by NIST in 2001 as DES's successor and is used by governments, banks, and industries worldwide."},
+
+{cat:"cry", topic:"DES & AES",
+q:"Triple DES (3DES) was developed as a response to DES's weakness. It works by:",
+options:["Using a 168-bit key in a single DES operation","Applying DES encryption three times sequentially (Encrypt-Decrypt-Encrypt with multiple keys), effectively increasing the key length to improve security — used as a stopgap before AES was standardised","Replacing the Feistel structure with a substitution-permutation network","Using three separate encryption algorithms in sequence"],
+ans:1,
+reason:"3DES addresses DES's key length weakness by applying DES three times: Encrypt with K1 → Decrypt with K2 → Encrypt with K3 (EDE mode). This increases effective key strength to 112 bits (with three distinct keys). 3DES was a practical stopgap solution that didn't require entirely new hardware. However, it's ~3x slower than DES, and AES is generally 6x faster than 3DES, leading to AES eventually replacing it."},
+
+{cat:"cry", topic:"DES & AES",
+q:"AES (Advanced Encryption Standard) was selected by NIST in 2001 primarily because:",
+options:["It was the fastest encryption algorithm ever created","It offered a stronger security architecture (Substitution-Permutation Network) with larger key sizes (128-256 bits), greater efficiency, and resistance to all known cryptanalytic attacks — directly addressing DES's security flaws","It was backwards-compatible with DES","It was the only algorithm submitted for consideration"],
+ans:1,
+reason:"AES (originally Rijndael, by Daemen and Rijmen) won the NIST competition because of: larger keys (128/192/256-bit vs DES's 56-bit), robust SPN design resistant to differential/linear cryptanalysis, better performance than 3DES (approx. 6x faster), wide platform support. AES is now the de facto global standard for symmetric encryption used in banking, government, VPNs, and wireless security."},
+
+{cat:"cry", topic:"DES & AES",
+q:"Both DES and AES are classified as which type of cipher?",
+options:["Stream ciphers — they encrypt one bit at a time","Asymmetric block ciphers — they use public/private key pairs","Symmetric block ciphers — they encrypt fixed-size blocks of data using the same key for both encryption and decryption","Hash functions — they produce fixed-length outputs from variable inputs"],
+ans:2,
+reason:"DES and AES are both symmetric block ciphers: Symmetric (same key for encryption and decryption), Block (encrypt fixed-size chunks: DES=64-bit blocks, AES=128-bit blocks). They differ in key length, number of rounds, and internal structure (DES=Feistel network, AES=Substitution-Permutation Network). Neither is asymmetric (no key pairs) nor a stream cipher (which encrypts bit-by-bit)."},
+
+// ══════════════ SECTION 13: MIXED / APPLIED ══════════════
+{cat:"cia", topic:"Applied Security",
+q:"An organization uses SHA-256 to hash all files and stores the hashes. When files are later retrieved, their hashes are recomputed and compared. This practice PRIMARILY protects which CIA principle?",
+options:["Confidentiality — unauthorised users cannot read the hashed files","Integrity — any unauthorised modification to a file will produce a different hash, immediately revealing tampering","Availability — hashing ensures files are always accessible","Authentication — it verifies who created the file"],
+ans:1,
+reason:"Hashing for Integrity verification: SHA-256 produces a unique 'fingerprint' of any file. If even one bit is changed (tampered), the resulting hash changes entirely (avalanche effect). By comparing stored and recomputed hashes, organisations can detect any unauthorised modification, corruption, or tampering — this is Integrity checking. Controls for Integrity include hashing, checksums, digital signatures."},
+
+{cat:"atk", topic:"Applied Security",
+q:"A user receives an email from 'security@bank0famerica.com' (note the zero instead of 'o') asking them to verify their account by clicking a link. This is MOST LIKELY an example of:",
+options:["A DoS attack targeting the user's email server","Email Spoofing combined with Phishing — the attacker forged the sender address with a lookalike domain to impersonate the bank, aiming to trick the user into revealing credentials","A Man-in-the-Middle attack","A Replay Attack on the email server"],
+ans:1,
+reason:"This is classic email spoofing + phishing: the lookalike domain ('bank0famerica.com' with a zero) is a spoofed sender address. The goal is to trick the user into clicking a malicious link and entering their banking credentials on a fake website. Signs: subtle domain misspelling, request for urgent action, request for sensitive information. Prevention: check sender email carefully, don't click embedded links."},
+
+{cat:"cry", topic:"Applied Security",
+q:"When you connect to 'https://yourbank.com', the padlock icon indicates that:",
+options:["The website has been verified as legitimate by the government","TLS (Transport Layer Security) is active — your connection uses the hybrid approach (asymmetric encryption for handshake key exchange + symmetric encryption for data) ensuring Confidentiality and Integrity of all data exchanged","Your data is encrypted but can be read by the bank's servers","Your passwords are stored in plaintext on the bank's server"],
+ans:1,
+reason:"HTTPS = HTTP + TLS. The padlock confirms: (1) The server's identity is verified by a Certificate Authority (CA) via its digital certificate; (2) The TLS handshake used asymmetric encryption (server's public key) to securely exchange a symmetric session key; (3) All subsequent data (credentials, transactions) is encrypted with the symmetric session key — providing Confidentiality and Integrity."},
+
+{cat:"atk", topic:"Applied Security",
+q:"An attacker captures a valid authentication token sent to a banking server and resends it 10 minutes later to authorise a fraudulent transaction. This is BEST classified as:",
+options:["A Man-in-the-Middle attack because the attacker intercepted network traffic","A Replay Attack — the attacker captured a legitimate transmission and re-transmitted it later to trick the server into accepting it as a valid new request","A DoS attack targeting the banking server","Email spoofing against the bank"],
+ans:1,
+reason:"Replay Attack: the attacker doesn't need to decrypt or forge the token — they simply capture a valid one (the server already authenticated it) and replay it later. The server cannot tell it was already used. Prevention: timestamps (reject tokens older than N seconds), one-time session tokens (invalidated after single use), nonces (random values that must be unique per request)."},
+
+{cat:"mec", topic:"Applied Security",
+q:"A company requires employees to use their fingerprint AND a password to log in to systems. This is an example of:",
+options:["Single-Factor Authentication","Multi-Factor Authentication (MFA) — combining two different authentication factors: something you have/are (biometric fingerprint) and something you know (password), significantly raising the bar for unauthorised access","Role-Based Access Control (RBAC)","A VPN connection"],
+ans:1,
+reason:"MFA combines two or more authentication factors from different categories: something you know (password, PIN), something you have (security key, OTP token, phone), something you are (biometric — fingerprint, face, iris). Combining fingerprint (something you are) + password (something you know) means an attacker needs BOTH to gain access, dramatically reducing risk even if one factor is compromised."},
+
+{cat:"cry", topic:"Applied Security",
+q:"Why is it important that steganography and cryptography are often COMBINED in secure communications?",
+options:["Using both makes the file size smaller","Cryptography alone makes the existence of an encrypted message obvious (a visible jumble of characters), while steganography hides the message's existence but doesn't make it unreadable — combining both (encrypt then hide) provides both Confidentiality and covert communication","They cancel each other out and provide extra security","Regulations require the use of both simultaneously"],
+ans:1,
+reason:"Encrypt then hide: Cryptography alone signals 'there is secret information here' (the encrypted blob is visible and invites attack). Steganography alone hides existence but the hidden message is readable if discovered. Combined: the message is first encrypted (unreadable even if found) then embedded in an innocent cover file (existence hidden). This layered approach provides maximum security."},
+
+];
+
+const TOTAL = QUESTIONS.length;
+let cur = 0, sel = Array(TOTAL).fill(null), flag = Array(TOTAL).fill(false);
+
+const catClass = c => c==='cia'?'a1':c==='atk'?'a2':c==='cry'?'a3':'a4';
+const catLabel = c => c==='cia'?'CIA/Concepts':c==='atk'?'Attacks':c==='cry'?'Cryptography':'Mechanisms';
+const catBadge = c => c==='cia'?'b1':c==='atk'?'b2':c==='cry'?'b3':'b4';
+const catOptSel = c => c==='cia'?'s1':c==='atk'?'s2':c==='cry'?'s3':'s4';
+
+function status(i) {
+  if (flag[i]) return 'fl';
+  if (sel[i] !== null) return catClass(QUESTIONS[i].cat);
+  if (i < cur) return 'sk';
+  return 'nv';
+}
+const ans = () => sel.filter(s => s !== null).length;
+const flags = () => flag.filter(Boolean).length;
+
+function buildPalette() {
+  const p = document.getElementById('palette'); p.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const b = document.createElement('div');
+    b.className = `pb ${status(i)}${i===cur?' cur':''}`;
+    b.textContent = i+1;
+    b.title = `Q${i+1}: ${QUESTIONS[i].topic}`;
+    b.onclick = () => go(i);
+    p.appendChild(b);
+  }
+}
+
+function buildStats() {
+  const bycat = c => QUESTIONS.reduce((a,q,i) => a+(q.cat===c&&sel[i]!==null?1:0), 0);
+  const tot = c => QUESTIONS.filter(q => q.cat===c).length;
+  document.getElementById('sb').innerHTML = `
+    <div class="sr"><span>CIA / Concepts</span><span class="sv" style="color:var(--c1)">${bycat('cia')}/${tot('cia')}</span></div>
+    <div class="sr"><span>Attacks</span><span class="sv" style="color:var(--c2)">${bycat('atk')}/${tot('atk')}</span></div>
+    <div class="sr"><span>Cryptography</span><span class="sv" style="color:var(--c3)">${bycat('cry')}/${tot('cry')}</span></div>
+    <div class="sr"><span>Mechanisms</span><span class="sv" style="color:var(--c4)">${bycat('mec')}/${tot('mec')}</span></div>
+    <div class="sr"><span>Flagged</span><span class="sv" style="color:var(--warn)">${flags()}</span></div>
+    <div class="sr"><span>Remaining</span><span class="sv" style="color:var(--err)">${TOTAL-ans()}</span></div>
+    <div class="sr"><span>Total</span><span class="sv">${TOTAL}</span></div>`;
+}
+
+function buildJump() {
+  document.getElementById('jsel').innerHTML = QUESTIONS
+    .map((q,i) => `<option value="${i}" ${i===cur?'selected':''}>[Q${i+1}] ${q.q.substring(0,38)}…</option>`).join('');
+}
+
+function render() {
+  const q = QUESTIONS[cur];
+  document.getElementById('qnum').innerHTML = `${cur+1}<span style="font-size:16px;opacity:.35"> / ${TOTAL}</span>`;
+  document.getElementById('qtopic').textContent = q.topic;
+  document.getElementById('pbar').style.width = `${(cur+1)/TOTAL*100}%`;
+  document.getElementById('qmeta').innerHTML =
+    `<span class="badge ${catBadge(q.cat)}">${catLabel(q.cat)}</span><span class="badge bt">${q.topic}</span>`;
+  document.getElementById('qtext').textContent = q.q;
+
+  const oc = document.getElementById('opts'); oc.innerHTML = '';
+  q.options.forEach((opt, oi) => {
+    const b = document.createElement('button');
+    b.className = `opt${sel[cur]===oi?' '+catOptSel(q.cat):''}`;
+    b.innerHTML = `<strong>(${L[oi]})</strong>&nbsp;&nbsp;${opt}`;
+    b.onclick = () => { sel[cur]=oi; flag[cur]=false; renderAll(); };
+    oc.appendChild(b);
+  });
+
+  document.getElementById('bfirst').disabled = cur===0;
+  document.getElementById('bprev').disabled = cur===0;
+  document.getElementById('bnext').disabled = cur===TOTAL-1;
+  document.getElementById('blast').disabled = cur===TOTAL-1;
+
+  const fb = document.getElementById('bflag');
+  fb.textContent = flag[cur]?'🚩 Unmark':'🚩 Flag';
+  fb.className = `nb fl-btn${flag[cur]?' on':''}`;
+  document.getElementById('bclear').style.display = sel[cur]!==null?'block':'none';
+
+  document.getElementById('sbar').innerHTML =
+    `✅ <b style="color:var(--ok)">${ans()}</b> Answered &nbsp;|&nbsp; 🚩 <b style="color:var(--warn)">${flags()}</b> Flagged &nbsp;|&nbsp; ⏳ <b style="color:var(--err)">${TOTAL-ans()}</b> Remaining`;
+}
+
+function renderAll() { buildPalette(); buildStats(); buildJump(); render(); }
+function go(i) { if (i<0||i>=TOTAL) return; cur=i; renderAll(); }
+function toggleFlag() { flag[cur]=!flag[cur]; renderAll(); }
+function clearSel() { sel[cur]=null; renderAll(); }
+
+function submitExam() {
+  const score = QUESTIONS.reduce((c,q,i) => c+(sel[i]===q.ans?1:0), 0);
+  const pct = Math.round(score/TOTAL*100);
+  const skipped = sel.filter(s=>s===null).length;
+  const wrong = TOTAL-score-skipped;
+
+  const bycat = c => {
+    const qs = QUESTIONS.map((q,i) => ({q,i})).filter(x => x.q.cat===c);
+    return { sc: qs.filter(x=>sel[x.i]===x.q.ans).length, tot: qs.length };
+  };
+  const ci=bycat('cia'),at=bycat('atk'),cr=bycat('cry'),me=bycat('mec');
+
+  let grade, gc;
+  if(pct>=85){grade='Outstanding! 🏆';gc='#2e7d32';}
+  else if(pct>=70){grade='Excellent! 🌟';gc='#e67e22';}
+  else if(pct>=55){grade='Good Job! 👍';gc='#1565c0';}
+  else if(pct>=40){grade='Keep Revising! 📚';gc='#c0392b';}
+  else{grade='Needs More Study 💪';gc='#7a6f65';}
+
+  const statCards = [
+    {v:score, l:'Correct', c:'var(--ok)'},
+    {v:wrong, l:'Wrong', c:'var(--err)'},
+    {v:skipped, l:'Skipped', c:'#aaa'},
+    {v:`${ci.sc}/${ci.tot}`, l:'CIA/Concepts', c:'var(--c1)'},
+    {v:`${at.sc}/${at.tot}`, l:'Attacks', c:'var(--c2)'},
+    {v:`${cr.sc}/${cr.tot}`, l:'Crypto', c:'var(--c3)'},
+  ].map(s=>`<div class="sc"><div class="v" style="color:${s.c}">${s.v}</div><div class="l">${s.l}</div></div>`).join('');
+
+  const reviewHTML = QUESTIONS.map((q,i) => {
+    const user=sel[i], cor=q.ans;
+    const isCor=user===cor, isSk=user===null;
+    const cls=isSk?'sk':isCor?'co':'wr';
+    const icon=isSk?'⬜ Skipped':isCor?'✅ Correct':'❌ Wrong';
+    const icol=isSk?'#aaa':isCor?'var(--ok)':'var(--err)';
+    let ah='';
+    if(!isSk&&isCor) ah=`<div class="ab ac">✅ Your answer: (${L[user]}) ${q.options[user]}</div>`;
+    else if(!isSk) ah=`<div class="ab aw">❌ Your answer: (${L[user]}) ${q.options[user]}</div><div class="ab ac" style="margin-top:5px">✅ Correct: (${L[cor]}) ${q.options[cor]}</div>`;
+    else ah=`<div class="ab ac">✅ Correct: (${L[cor]}) ${q.options[cor]}</div>`;
+    return `<div class="ri ${cls}">
+      <div class="rt">
+        <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center">
+          <span style="font-size:10px;color:var(--sub);font-family:var(--mono);font-weight:600">Q${i+1}</span>
+          <span class="badge ${catBadge(q.cat)}">${catLabel(q.cat)}</span>
+          <span class="badge bt">${q.topic}</span>
+        </div>
+        <span style="font-size:12px;font-weight:700;color:${icol};white-space:nowrap">${icon}</span>
+      </div>
+      <div class="rq">${q.q}</div>
+      ${ah}
+      <div class="rb">💡 ${q.reason}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('exam-shell').style.display='none';
+  const r = document.getElementById('results');
+  r.style.display='block';
+  r.innerHTML=`
+    <div class="res-hero">
+      <div style="font-size:10px;color:var(--sub);font-family:var(--mono);text-transform:uppercase;letter-spacing:2px;margin-bottom:18px;position:relative">Network & Web Security · Unit 1 · Exam Complete</div>
+      <div class="score-big">${score}<span style="font-size:36px;opacity:.3">/${TOTAL}</span></div>
+      <div class="score-pct">${pct}% &nbsp;·&nbsp; <span style="color:${gc};font-weight:700">${grade}</span></div>
+    </div>
+    <div class="sg">${statCards}</div>
+    <div class="sh">📋 Detailed Review</div>
+    ${reviewHTML}
+    <button class="btn-retake" onclick="retake()">🔄 Retake Exam</button>`;
+  window.scrollTo(0,0);
+}
+
+function retake() {
+  sel=Array(TOTAL).fill(null); flag=Array(TOTAL).fill(false); cur=0;
+  document.getElementById('results').style.display='none';
+  document.getElementById('exam-shell').style.display='flex';
+  renderAll();
+}
+
+renderAll();
+</script>
+</body>
+</html>
