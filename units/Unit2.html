@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Network and Web Security Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; flex-direction: column; }
+
+  .top-bar { background: #29B6F6; color: white; text-align: center; padding: 11px 28px; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,0.15); flex-shrink: 0; }
+  .tape-fold { position: absolute; top: 0; bottom: 0; width: 22px; background: #0288D1; opacity: 0.75; }
+  .tape-fold.left { left: 0; } .tape-fold.right { right: 0; }
+  .top-bar h1 { font-size: 18px; font-weight: 800; letter-spacing: 0.6px; text-shadow: 0 1px 2px rgba(0,0,0,0.18); }
+  .top-bar p  { font-size: 12px; opacity: 0.92; margin-top: 2px; font-weight: 500; }
+
+  .main-layout { display: flex; flex: 1; height: calc(100vh - 66px); }
+  .question-area { flex: 1; padding: 24px 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+  .q-header { display: flex; justify-content: space-between; align-items: center; }
+  .q-num { font-size: 13px; color: #1a6bbf; font-weight: 700; background: #ddeeff; padding: 4px 14px; border-radius: 20px; border: 1px solid #aacfee; }
+  .q-marks { font-size: 13px; color: #1a7a3c; font-weight: 700; background: #e8f5e9; padding: 4px 14px; border-radius: 20px; border: 1px solid #a5d6a7; }
+  .q-text { font-size: 15.5px; color: #1a1a2e; font-weight: 500; line-height: 1.65; background: white; padding: 20px 22px; border-radius: 12px; border: 1px solid #d0d8ec; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option { display: flex; align-items: center; gap: 14px; padding: 12px 18px; border-radius: 10px; border: 1.5px solid #d0d8e8; background: white; cursor: pointer; transition: all 0.18s ease; font-size: 14px; color: #2c2c2c; }
+  .option:hover { border-color: #29B6F6; background: #f0faff; }
+  .option.selected { border-color: #0288D1; background: #e1f5fe; font-weight: 600; }
+  .option-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #b0bec5; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.18s; background: white; }
+  .option.selected .option-dot { border-color: #0288D1; background: #0288D1; }
+  .option.selected .option-dot::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: white; }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
+  .btn { padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-clear { background: white; color: #555; border: 1.5px solid #ccc; } .btn-clear:hover { background: #f0f0f0; }
+  .btn-review { background: #7B1FA2; color: white; } .btn-review:hover { background: #6a1b9a; }
+  .btn-prev { background: white; color: #0288D1; border: 1.5px solid #0288D1; } .btn-prev:hover { background: #e1f5fe; }
+  .btn-next { background: #29B6F6; color: white; margin-left: auto; } .btn-next:hover { background: #0288D1; }
+
+  .sidebar { width: 206px; background: white; border-left: 1px solid #dde3ed; display: flex; flex-direction: column; flex-shrink: 0; }
+  .student-name-box { background: #29B6F6; color: white; padding: 10px 12px; text-align: center; border-bottom: 2px solid #0288D1; }
+  .student-name-box .s-label { font-size: 10px; opacity: 0.88; text-transform: uppercase; letter-spacing: 0.6px; }
+  .student-name-box .s-name { font-size: 13px; font-weight: 800; margin-top: 3px; line-height: 1.35; }
+  .sidebar-legend { padding: 10px 12px 8px; border-bottom: 1px solid #eee; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #555; margin-bottom: 5px; }
+  .legend-shape { width: 22px; height: 22px; flex-shrink: 0; }
+  .hut-answered { fill: #2e7d32; } .hut-unanswered { fill: white; stroke: #b0bec5; stroke-width: 1.5; }
+  .hut-review { fill: #7B1FA2; } .hut-rev-ans { fill: #e65100; } .hut-active { fill: #29B6F6; }
+  .sidebar-section-title { font-size: 11px; font-weight: 700; color: #888; padding: 8px 12px 5px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .q-grid { padding: 4px 10px 10px; display: flex; flex-wrap: wrap; gap: 5px; overflow-y: auto; flex: 1; }
+  .q-icon-wrap { position: relative; cursor: pointer; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; transition: transform 0.12s; }
+  .q-icon-wrap:hover { transform: scale(1.1); } .q-icon-wrap:hover .q-tooltip { opacity: 1; }
+  .q-svg { width: 30px; height: 30px; }
+  .q-num-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%); font-size: 9px; font-weight: 800; pointer-events: none; z-index: 2; line-height: 1; }
+  .q-num-label.light { color: white; } .q-num-label.dark { color: #444; }
+  .q-tooltip { position: absolute; bottom: 115%; left: 50%; transform: translateX(-50%); background: #333; color: white; font-size: 10px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; opacity: 0; transition: opacity 0.15s; pointer-events: none; z-index: 99; }
+  .status-bar { padding: 6px 12px; background: #f8f9fc; border-top: 1px solid #eee; font-size: 11px; color: #666; display: flex; justify-content: space-between; }
+  .submit-btn { margin: 10px 12px 14px; padding: 10px; background: #29B6F6; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; transition: background 0.15s; }
+  .submit-btn:hover { background: #0288D1; }
+
+  /* RESULT SCREEN */
+  #resultScreen { display: none; flex-direction: column; flex: 1; overflow-y: auto; background: #f0f4f8; }
+  .score-banner { background: #29B6F6; color: white; padding: 30px 32px; text-align: center; position: relative; }
+  .score-banner .tape-fold { background: #0288D1; }
+  .score-banner h2 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+  .score-big { font-size: 56px; font-weight: 900; line-height: 1; }
+  .score-sub { font-size: 15px; opacity: 0.92; margin-top: 6px; font-weight: 600; }
+
+  .score-stats { display: flex; gap: 14px; padding: 18px 28px; background: white; border-bottom: 1px solid #dde3ed; flex-wrap: wrap; }
+  .stat-box { flex: 1; min-width: 90px; text-align: center; padding: 14px 8px; border-radius: 12px; }
+  .stat-box.correct  { background: #e8f5e9; }
+  .stat-box.wrong    { background: #fdecea; }
+  .stat-box.skipped  { background: #f3e5f5; }
+  .stat-box .s-val   { font-size: 30px; font-weight: 900; }
+  .stat-box.correct .s-val  { color: #2e7d32; }
+  .stat-box.wrong .s-val    { color: #c62828; }
+  .stat-box.skipped .s-val  { color: #7B1FA2; }
+  .stat-box .s-lbl   { font-size: 12px; color: #666; font-weight: 700; margin-top: 4px; }
+
+  .filter-bar { display: flex; gap: 8px; padding: 14px 28px; background: white; border-bottom: 1px solid #eee; flex-wrap: wrap; }
+  .filter-btn { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1.5px solid #ccc; background: white; color: #555; transition: all 0.15s; }
+  .filter-btn.active-all     { background: #29B6F6; color: white; border-color: #29B6F6; }
+  .filter-btn.active-correct { background: #2e7d32; color: white; border-color: #2e7d32; }
+  .filter-btn.active-wrong   { background: #c62828; color: white; border-color: #c62828; }
+  .filter-btn.active-skip    { background: #7B1FA2; color: white; border-color: #7B1FA2; }
+
+  .result-list { padding: 20px 28px; display: flex; flex-direction: column; gap: 16px; }
+  .result-card { background: white; border-radius: 12px; padding: 18px 20px; border-left: 5px solid #ccc; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .result-card.correct-card { border-left-color: #2e7d32; }
+  .result-card.wrong-card   { border-left-color: #c62828; }
+  .result-card.skip-card    { border-left-color: #9e9e9e; }
+  .rc-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .rc-qnum { font-size: 11px; font-weight: 700; color: #888; white-space: nowrap; }
+  .rc-badge { font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .badge-correct { background: #e8f5e9; color: #2e7d32; }
+  .badge-wrong   { background: #fdecea; color: #c62828; }
+  .badge-skip    { background: #f5f5f5; color: #757575; }
+  .rc-question { font-size: 14px; font-weight: 600; color: #1a1a2e; line-height: 1.5; margin-bottom: 12px; }
+  .rc-opts { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .rc-opt { font-size: 13px; padding: 7px 12px; border-radius: 8px; border: 1.5px solid #eee; color: #555; display: flex; align-items: center; gap: 8px; }
+  .rc-opt.opt-correct { background: #e8f5e9; border-color: #a5d6a7; color: #1b5e20; font-weight: 700; }
+  .rc-opt.opt-wrong   { background: #fdecea; border-color: #ef9a9a; color: #b71c1c; font-weight: 600; text-decoration: line-through; }
+  .rc-opt .opt-icon   { font-size: 14px; flex-shrink: 0; }
+  .rc-explanation { background: #f0f7ff; border: 1px solid #b3d4f5; border-radius: 8px; padding: 11px 14px; font-size: 13px; color: #1a3a5c; line-height: 1.65; }
+  .rc-explanation strong { color: #0288D1; }
+
+  .retake-bar { padding: 18px 28px; background: white; border-top: 1px solid #dde3ed; display: flex; gap: 12px; justify-content: center; flex-shrink: 0; }
+  .retake-btn { padding: 11px 30px; border-radius: 8px; font-size: 14px; font-weight: 800; cursor: pointer; border: none; transition: background 0.15s; }
+  .retake-btn.primary { background: #29B6F6; color: white; } .retake-btn.primary:hover { background: #0288D1; }
+  .retake-btn.secondary { background: white; color: #0288D1; border: 1.5px solid #0288D1; } .retake-btn.secondary:hover { background: #e1f5fe; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="tape-fold left"></div>
+  <div class="tape-fold right"></div>
+  <h1>Network and Web Security</h1>
+  <p>Course Code: 31242204</p>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="quizScreen" style="display:flex;flex:1;">
+  <div class="main-layout">
+    <div class="question-area">
+      <div class="q-header">
+        <span class="q-num" id="qNumLabel">Question 1 of 55</span>
+        <span class="q-marks">Marks: 1</span>
+      </div>
+      <div class="q-text" id="questionText">Loading...</div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="btn-row">
+        <button class="btn btn-clear"  onclick="clearResponse()">Clear Response</button>
+        <button class="btn btn-review" onclick="markReview()">Mark for Review</button>
+        <button class="btn btn-prev"   onclick="goTo(currentQ-1)">&#8592; Previous</button>
+        <button class="btn btn-next"   onclick="goTo(currentQ+1)">Next &#8594;</button>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="student-name-box">
+        <div class="s-label">Student</div>
+        <div class="s-name">Umesh Kumar Mishra</div>
+      </div>
+      <div class="sidebar-legend">
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-answered"/></svg>Answered</div>
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-unanswered"/></svg>Not Answered</div>
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-review"/></svg>Mark for Review</div>
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-rev-ans"/></svg>Answered + Review</div>
+      </div>
+      <div class="sidebar-section-title">Questions</div>
+      <div class="q-grid" id="qGrid"></div>
+      <div class="status-bar"><span id="answeredCount">0 answered</span><span id="reviewCount">0 review</span></div>
+      <button class="submit-btn" onclick="submitQuiz()">Submit Quiz &#10003;</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="resultScreen">
+  <div class="score-banner">
+    <div class="tape-fold left"></div>
+    <div class="tape-fold right"></div>
+    <h2>Quiz Results &mdash; Umesh Kumar Mishra</h2>
+    <div class="score-big" id="scoreBig">0/55</div>
+    <div class="score-sub" id="scorePct">0% Score</div>
+  </div>
+  <div class="score-stats">
+    <div class="stat-box correct"><div class="s-val" id="statCorrect">0</div><div class="s-lbl">&#10004; Correct</div></div>
+    <div class="stat-box wrong"><div class="s-val" id="statWrong">0</div><div class="s-lbl">&#10008; Wrong</div></div>
+    <div class="stat-box skipped"><div class="s-val" id="statSkipped">0</div><div class="s-lbl">&#8212; Skipped</div></div>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn active-all" onclick="applyFilter('all',this)">All Questions</button>
+    <button class="filter-btn" onclick="applyFilter('correct',this)">&#10004; Correct Only</button>
+    <button class="filter-btn" onclick="applyFilter('wrong',this)">&#10008; Wrong Only</button>
+    <button class="filter-btn" onclick="applyFilter('skip',this)">&#8212; Skipped Only</button>
+  </div>
+  <div class="result-list" id="resultList"></div>
+  <div class="retake-bar">
+    <button class="retake-btn secondary" onclick="retakeQuiz()">Retake Quiz</button>
+    <button class="retake-btn primary" onclick="window.print()">Print Results</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {q:"What is hashing in the context of cryptography?",opts:["A two-way encryption function","A one-way function converting input into a fixed-size digest","A method to share secret keys between parties","A protocol for network authentication"],ans:1,exp:"Hashing is a one-way mathematical function that converts any input into a fixed-size string called a hash value or digest. Unlike encryption, hashing cannot be reversed — you cannot reconstruct the original data from the hash. It is used widely for data integrity verification and password storage."},
+  {q:"Which key characteristic of a hash function means the same input always produces the same output?",opts:["Irreversibility","Collision-resistance","Determinism","Compression"],ans:2,exp:"Determinism means the same input will always produce exactly the same hash output, every time. This property is essential so receivers can independently reproduce the hash and compare it to detect any changes. Without determinism, hashing for integrity checks would be impossible."},
+  {q:"Which property of hashing ensures it is computationally infeasible to find two different inputs producing the same output?",opts:["Determinism","Irreversibility","Avalanche effect","Collision-resistance"],ans:3,exp:"Collision-resistance means it is practically impossible to find two distinct inputs that produce an identical hash. If two inputs could share a hash, an attacker could substitute a malicious file for a legitimate one without detection. Strong algorithms like SHA-256 are specifically designed to minimize this risk."},
+  {q:"What does it mean that a hash function is 'irreversible'?",opts:["The output changes with every run","Original data cannot be reconstructed from the hash value","The hash value is always the same length as the input","Two inputs can share the same hash"],ans:1,exp:"Irreversibility (pre-image resistance) means you cannot mathematically reverse the hash to recover the original input. This is what makes hashing safe for storing passwords — even if an attacker obtains the hash database, they cannot directly read the passwords from the hash values alone."},
+  {q:"Which hashing algorithm is considered OLDER and LESS SECURE among the following?",opts:["SHA-256","SHA-3","MD5","BLAKE2"],ans:2,exp:"MD5 (Message Digest 5) was widely used in the 1990s but is now cryptographically broken. Researchers have demonstrated practical collision attacks against MD5, meaning two different inputs can produce the same hash. It should never be used for security-critical applications in modern systems."},
+  {q:"Which of the following is NOT a hashing algorithm?",opts:["SHA-256","BLAKE2","AES-128","SHA-3"],ans:2,exp:"AES-128 is a symmetric encryption algorithm, not a hashing algorithm. The hashing algorithms covered in the syllabus are SHA-2 (including SHA-256 and SHA-512), SHA-3, MD5, and BLAKE2. Mixing up encryption and hashing is a common misconception — they serve fundamentally different purposes."},
+  {q:"How is hashing used in password security?",opts:["Passwords are encrypted with a public key","Hashes of passwords are stored instead of plain text","Passwords are transmitted as hash values during login","Passwords are signed with a private key"],ans:1,exp:"Instead of storing plain-text passwords, systems store the hash of each password. When a user logs in, their entered password is hashed and compared to the stored hash. If a database is breached, attackers only see hash values and cannot directly read the original passwords, significantly improving security."},
+  {q:"In blockchain, how does hashing create tamper-proof records?",opts:["By encrypting user wallets with AES","By linking blocks via the previous block's hash","By authenticating miners using digital certificates","By sharing symmetric keys between nodes"],ans:1,exp:"Each block in a blockchain contains the hash of the previous block, forming a chain. If an attacker alters any block, its hash changes, breaking the link to subsequent blocks. This chain-linking property makes blockchain records extremely tamper-proof and is central to Bitcoin and other cryptocurrency security models."},
+  {q:"What happens to the hash value if even a single character of the input is changed?",opts:["The hash changes slightly","The hash remains the same","The hash value completely changes, indicating tampering","The hash doubles in length"],ans:2,exp:"The avalanche effect in cryptographic hash functions means even the smallest change — flipping one bit or changing one character — produces a completely different hash output. This makes it immediately obvious to recipients if any part of a message or file has been altered, whether accidentally or maliciously."},
+  {q:"Which hashing application verifies that a file has not been altered during transmission?",opts:["Password Security","Blockchain","Data Integrity","Code Signing"],ans:2,exp:"Data Integrity verification uses hashing to confirm a file or message arrived unchanged. The sender computes a hash before sending; the recipient recomputes it upon arrival. If both hashes match, the data is intact. If they differ, the data was altered or corrupted in transit and should be rejected."},
+  {q:"What is the first step in creating a digital signature?",opts:["Encrypting the document with the private key","Creating a hash of the document","Sending the document to the CA","Generating a session key"],ans:1,exp:"The first step is generating a hash (digest) of the document using an algorithm like SHA-256. This hash uniquely represents the document's contents. The hash — not the entire document — is then encrypted with the sender's private key to form the digital signature, making the process computationally efficient."},
+  {q:"In a digital signature, the sender encrypts the hash using their:",opts:["Public key","Session key","Private key","Symmetric key"],ans:2,exp:"The sender uses their private key (which only they possess) to encrypt the hash, creating the digital signature. Because the private key is secret and unique to the sender, this proves the signature could only have been created by that specific person. The recipient uses the sender's public key to verify it."},
+  {q:"How does the recipient verify a digital signature?",opts:["By decrypting using their own private key","By comparing the sender's certificate with the CA database","By decrypting the hash with the sender's public key and comparing it to a freshly generated hash","By re-signing the document with their private key"],ans:2,exp:"Verification involves the recipient using the sender's publicly available public key to decrypt the signature and recover the original hash. The recipient independently hashes the received document. If both hashes match, the signature is valid — proving the document is authentic and has not been tampered with since signing."},
+  {q:"Which security property of digital signatures confirms data has not been modified in transit?",opts:["Non-repudiation","Authentication","Integrity","Confidentiality"],ans:2,exp:"Integrity ensures the document has not been altered after it was signed. Since any change to the document produces a completely different hash, the hashes will not match during verification if tampering occurred. This makes digital signatures ideal for legal documents, software distribution, and financial transactions."},
+  {q:"Which property prevents the sender from later denying they signed the document?",opts:["Integrity","Non-repudiation","Confidentiality","Availability"],ans:1,exp:"Non-repudiation means the signer cannot deny having signed the document. Since the private key is uniquely associated with the signer, only they could produce that signature. This is legally enforceable in many jurisdictions, making digital signatures valid alternatives to handwritten signatures for binding contracts."},
+  {q:"What type of cryptography do digital signatures rely on?",opts:["Symmetric cryptography","Quantum cryptography","Hash-only cryptography","Asymmetric (public-key) cryptography"],ans:3,exp:"Digital signatures use asymmetric (public-key) cryptography involving a mathematically linked key pair: a private key kept secret by the signer, and a public key shared openly. The private key signs; the public key verifies. This design ensures only the key owner can create a valid signature while anyone can verify it."},
+  {q:"Which of the following is a common use case for digital signatures?",opts:["Compressing large files","Verifying software has not been altered by unauthorized parties","Storing passwords securely","Generating session keys for TLS"],ans:1,exp:"Software distribution commonly uses digital signatures so users can verify a downloaded application is genuine and unmodified. The developer signs the software with their private key before publishing. The OS verifies using the developer's public key — if code was altered after signing, the signature breaks and a security warning appears."},
+  {q:"How do digital signatures differ from simple electronic signatures?",opts:["They are legally invalid","They specifically use cryptographic techniques to guarantee security","They only work on PDF documents","They do not use keys of any kind"],ans:1,exp:"An electronic signature is simply a digital mark (like a typed name) with no cryptographic guarantee. A digital signature uses asymmetric cryptography to mathematically prove the signer's identity and guarantee document integrity. Digital signatures are cryptographically verifiable; electronic signatures are not."},
+  {q:"In digital signature verification, if the two hashes do NOT match, what does this indicate?",opts:["The signature is valid","The document was altered after signing","The public key is incorrect","The certificate has expired"],ans:1,exp:"A hash mismatch during verification means the document's content changed after it was signed. Since even a single character change produces a completely different hash, any modification — accidental or malicious — is detected. This could indicate data corruption during transmission or deliberate tampering by a third party."},
+  {q:"Which key benefit of digital signatures provides a legally enforceable alternative to handwritten signatures?",opts:["Integrity","Authentication","Non-repudiation","Compliance"],ans:3,exp:"Compliance means digital signatures are legally recognized as equivalent to handwritten signatures in many countries — under the eIDAS regulation in Europe and ESIGN Act in the US. This makes them valid for legally binding contracts, financial agreements, and official government documents, significantly reducing reliance on physical paperwork."},
+  {q:"What is a Certificate Authority (CA)?",opts:["A government body that regulates internet usage","A trusted entity that issues digital certificates linking public keys to entities","A server that handles symmetric key exchange","A firewall component that filters HTTPS traffic"],ans:1,exp:"A CA is a trusted organization (like DigiCert, Let's Encrypt, or Comodo) that verifies the identity of website owners, individuals, or devices and issues digital certificates binding their identity to a public key. Browsers trust CAs by default through pre-installed root certificates, forming the foundation of internet security."},
+  {q:"What does PKI stand for?",opts:["Private Key Infrastructure","Protocol Key Interface","Public Key Infrastructure","Public Knowledge Index"],ans:2,exp:"PKI (Public Key Infrastructure) is the complete framework of policies, hardware, software, people, and procedures used to create, manage, distribute, use, store, and revoke digital certificates. It governs how public keys are associated with identities through CAs, making secure online communication — like HTTPS — possible at scale."},
+  {q:"Which certificate type offers the HIGHEST level of identity authentication?",opts:["Domain Validated (DV)","Organization Validated (OV)","Extended Validation (EV)","Root Certificate (RC)"],ans:2,exp:"Extended Validation (EV) certificates require the most rigorous identity verification — including legal, physical, and operational checks on the organization. EV certificates are typically used by banks and e-commerce sites requiring maximum user trust, providing a higher assurance level than DV or OV certificates."},
+  {q:"What are 'Trust Anchors' in the context of CA certificates?",opts:["Hard-coded IP addresses of secure servers","Pre-installed lists of trusted root CAs in browsers and operating systems","Session keys generated during TLS handshake","Backup certificates stored offline"],ans:1,exp:"Trust Anchors are the pre-installed root CA certificates bundled into browsers and operating systems (the Root Store). When your browser encounters a website's certificate, it traces the chain of trust back to one of these pre-trusted root CAs. If the chain is valid, the website is authenticated automatically without user intervention."},
+  {q:"What does S/MIME provide in email security?",opts:["Spam filtering","End-to-end signing and encryption directly within the email","IP address masking","Two-factor authentication"],ans:1,exp:"S/MIME (Secure/Multipurpose Internet Mail Extensions) provides end-to-end security for emails directly within the email content — not just the connection. It allows senders to digitally sign emails (proving authenticity and integrity) and encrypt them using the recipient's public key so only the intended recipient can read them."},
+  {q:"In code signing, what does the OS verify when you download an application?",opts:["The developer's social security number","The developer's signature using their public key found in the CA certificate","The file size matches the original","The server's session key"],ans:1,exp:"When you install an application, your OS uses the developer's public key (embedded in their CA-issued certificate) to verify the digital signature on the software. If the code was modified after signing — such as malware injected into a legitimate installer — the signature fails and the OS shows a security warning."},
+  {q:"What is Certificate-Based Authentication used for in VPN access?",opts:["To replace firewall rules","To authenticate users and devices using digital IDs instead of passwords","To encrypt the VPN tunnel with symmetric keys only","To issue TGTs for Kerberos"],ans:1,exp:"Certificate-Based Authentication replaces passwords with digital certificates as identity proof for VPN access. Both the VPN gateway and the connecting device hold certificates issued by the organization's CA. This is more secure than passwords because the private key never leaves the device and cannot be phished or guessed."},
+  {q:"During the HTTPS TLS handshake, what does the browser check to verify the server's certificate?",opts:["The server's IP address against a whitelist","Its built-in Root Store (trusted CAs list) to verify the CA's signature","The server's MAC address","The DNS record of the domain"],ans:1,exp:"During the TLS handshake, the browser receives the server's digital certificate and traces its certificate chain back to a root CA in its built-in Root Store. If a trusted CA signed the certificate and it is currently valid (not expired, not revoked), the browser authenticates the server, preventing man-in-the-middle attacks."},
+  {q:"Which PKI component handles management, revocation, and renewal of digital certificates?",opts:["KDC","TGS","CA","MAC"],ans:2,exp:"The Certificate Authority (CA) is the central PKI component responsible for the full lifecycle of digital certificates — issuing them, maintaining Certificate Revocation Lists (CRLs), supporting OCSP for real-time revocation checks, and renewing certificates before expiry. Without CAs, the entire trust model of HTTPS would collapse."},
+  {q:"In the CA certificate process, what does the CA use to create the digital signature on a certificate?",opts:["The applicant's public key","A symmetric session key","The CA's own private key","SHA-3 hash only"],ans:2,exp:"The CA signs each issued certificate using its own private key. This signature, verified using the CA's widely trusted public key, proves the certificate is genuine and was issued by that CA. The CA's private key is one of the most protected secrets in cybersecurity — if compromised, all certificates it issued become untrustworthy."},
+  {q:"Kerberos is primarily a:",opts:["File encryption protocol","Network authentication protocol using encrypted tickets","Certificate issuance system","Symmetric key distribution algorithm for emails"],ans:1,exp:"Kerberos is a network authentication protocol developed at MIT that verifies user identities and grants access to services using encrypted tickets rather than sending passwords over the network. It is the default authentication mechanism in Windows Active Directory environments and supports Single Sign-On across complex distributed systems."},
+  {q:"What component acts as the central trusted authority in Kerberos?",opts:["Certificate Authority (CA)","Authentication Server only","Key Distribution Center (KDC)","Ticket-Granting Server only"],ans:2,exp:"The KDC (Key Distribution Center) is the heart of Kerberos. It contains two services: the Authentication Server (AS), which verifies user credentials, and the Ticket-Granting Server (TGS), which issues service-specific tickets. All users and services trust the KDC, concentrating security management in one highly secured component."},
+  {q:"What is a Ticket-Granting Ticket (TGT) in Kerberos?",opts:["A ticket that directly grants access to a file server","An encrypted ticket issued by the KDC allowing the user to request service tickets","A password hash stored on the client machine","A digital certificate issued by the CA"],ans:1,exp:"After a user is authenticated by the KDC's Authentication Server, they receive a TGT — an encrypted proof of identity. The TGT is used to request specific Service Tickets for each resource (file share, email server) without re-entering credentials, enabling Single Sign-On functionality throughout the session."},
+  {q:"In Kerberos, what does Single Sign-On (SSO) allow users to do?",opts:["Log in with biometric data only","Log in once and access multiple resources without repeated logins","Sign in using their CA certificate directly","Share their TGT with other users"],ans:1,exp:"SSO in Kerberos means a user authenticates once at login and receives a TGT. For the TGT's validity period, they can seamlessly access any permitted network service — files, email, printers — without re-entering their password. This improves user experience and reduces password fatigue without sacrificing security."},
+  {q:"Why are passwords never sent over the network in Kerberos?",opts:["They are too long to transmit","Encrypted tickets are used instead, protecting passwords from eavesdropping","Kerberos uses asymmetric encryption for all communication","The KDC stores passwords in plain text locally"],ans:1,exp:"Kerberos converts the user's password into a cryptographic key locally on the client machine. This key is used to decrypt a challenge from the KDC — if successful, authentication is proven. All subsequent access uses encrypted tickets, so the actual password (or even its hash) is never transmitted over the network."},
+  {q:"Which cryptography type does Kerberos primarily use?",opts:["Asymmetric (public-key) cryptography","Hash-only cryptography","Symmetric-key cryptography with shared secret keys","Quantum key distribution"],ans:2,exp:"Kerberos primarily uses symmetric-key cryptography where the KDC shares a unique secret key with each user and each service. Tickets are encrypted with these shared keys so only the intended party can decrypt them. This differs from PKI/certificates which use asymmetric cryptography — Kerberos is optimized for fast internal network authentication."},
+  {q:"What are 'Session Keys' in Kerberos?",opts:["Long-term keys shared between KDC and users","Temporary short-lived keys generated by the KDC for each new interaction","Keys embedded inside digital certificates","Keys used exclusively for file encryption"],ans:1,exp:"Session Keys are temporary cryptographic keys generated by the KDC for each new communication between a client and a service. One copy goes to the client and another (encrypted) is in the service ticket for the server. Because session keys are short-lived and unique per interaction, intercepting one does not compromise other sessions."},
+  {q:"In a Kerberoasting attack, what do attackers do after obtaining a service ticket?",opts:["Forge a Golden Ticket to access the KDC","Try to crack the service account's password hash offline","Intercept the TGT during transmission","Delete the service ticket from the KDC database"],ans:1,exp:"In Kerberoasting, attackers request legitimate service tickets for accounts with Service Principal Names (SPNs). These tickets are encrypted with the service account's password hash. The attacker takes the ticket offline and brute-forces the password hash at full CPU/GPU speed without alerting the network. Weak service account passwords make this very effective."},
+  {q:"What is a Golden Ticket attack in Kerberos?",opts:["An attack stealing session cookies from browsers","Forging tickets by compromising the KDC's master key, granting broad network access","Cracking DV certificates to impersonate a CA","Exploiting padding in Kerberos ticket encryption"],ans:1,exp:"A Golden Ticket attack occurs when an attacker compromises the KDC's KRBTGT account secret key. With this key, they can forge TGTs for any user — including non-existent accounts — with any privileges. These forged tickets remain valid until the KRBTGT password is changed, potentially giving attackers persistent, undetected domain-wide access."},
+  {q:"What is the purpose of timestamps in Kerberos tickets?",opts:["To log user activity for auditing","To ensure tickets expire quickly (5–10 minutes), preventing reuse if intercepted","To synchronize the KDC database","To mark the time of certificate issuance"],ans:1,exp:"Kerberos tickets contain timestamps with short validity windows — typically 5–10 minutes for service tickets. If an attacker intercepts a ticket, it expires before they can realistically use it. Kerberos requires all machines to have synchronized clocks (within 5 minutes) for this time-based security mechanism to function correctly."},
+  {q:"What does TLS stand for?",opts:["Trusted Link Security","Transport Layer Security","Transmission Lock Standard","Token Layer System"],ans:1,exp:"TLS stands for Transport Layer Security. It is the modern successor to SSL (Secure Sockets Layer) and operates at the transport layer of the network stack. TLS provides privacy, integrity, and authentication for internet communications and is the security backbone of HTTPS, email (SMTPS), and many other protocols."},
+  {q:"What is the main purpose of TLS/SSL?",opts:["To compress HTTP data for faster transfer","To establish an encrypted, authenticated tunnel ensuring data privacy and integrity","To replace IP addresses with domain names","To manage DNS records securely"],ans:1,exp:"TLS establishes a secure encrypted tunnel between a client (browser) and a server, ensuring three things: privacy (data is encrypted so eavesdroppers cannot read it), integrity (data cannot be modified in transit without detection), and authentication (the server's identity is verified via its CA-issued certificate)."},
+  {q:"Which encryption is used during the TLS handshake for key exchange?",opts:["Symmetric encryption (AES)","Hashing only (SHA-256)","Asymmetric encryption (public/private keys)","Quantum encryption"],ans:2,exp:"During the TLS handshake, asymmetric encryption (using the server's public/private key pair) is used for authentication and to securely establish a shared secret. This shared secret derives symmetric session keys. TLS 1.3 uses Diffie-Hellman ephemeral key exchange for this, which additionally provides Forward Secrecy for all sessions."},
+  {q:"Which encryption does TLS use for bulk data transfer after the handshake?",opts:["Asymmetric encryption","RSA exclusively","Symmetric encryption (e.g., AES)","Hash-based encryption"],ans:2,exp:"After the handshake establishes a shared session key, TLS switches to symmetric encryption (like AES-GCM) for all actual data transfer. Symmetric encryption is thousands of times faster than asymmetric encryption, making it practical for transmitting large amounts of data efficiently. This hybrid approach gives TLS both security and high performance."},
+  {q:"How many round-trips does TLS 1.3 require compared to TLS 1.2?",opts:["TLS 1.3 needs 2 RTT; TLS 1.2 needs 1 RTT","Both require 2 RTT","TLS 1.3 needs 1 RTT; TLS 1.2 needs 2 RTT","TLS 1.3 needs 3 RTT; TLS 1.2 needs 2 RTT"],ans:2,exp:"TLS 1.2 requires 2 round-trips (RTT) — one for negotiating cipher suites and one for key exchange. TLS 1.3 combines these into a single round-trip by optimistically sharing key material immediately. TLS 1.3 also supports 0-RTT resumption for returning clients, making repeated connections to websites feel nearly instantaneous."},
+  {q:"What is 0-RTT Resumption in TLS 1.3?",opts:["A feature that disables encryption for faster connections","Allowing a returning client to send encrypted data in the very first message with zero handshake delay","A method of reusing the same session key indefinitely","A fallback to SSL 3.0 for legacy servers"],ans:1,exp:"0-RTT (Zero Round-Trip Time) Resumption allows a client that previously connected to a server to remember session parameters and send encrypted data in its very first message — eliminating handshake delay entirely. This dramatically speeds up repeated connections but carries a small replay-attack risk, so it requires careful server-side implementation."},
+  {q:"What does Forward Secrecy in TLS 1.3 ensure?",opts:["That all sessions use the same long-term key","That even if a server's private key is stolen later, past recorded communications cannot be decrypted","That the client's certificate is verified by two CAs","That TLS 1.2 sessions are automatically upgraded"],ans:1,exp:"Forward Secrecy means TLS 1.3 generates a fresh temporary key for every session using ephemeral Diffie-Hellman. These session keys are never stored. Even if an attacker records encrypted traffic today and later steals the server's private key, they still cannot decrypt the old recordings because those temporary keys no longer exist."},
+  {q:"What does HMAC or AEAD protect against in TLS?",opts:["Man-in-the-middle attacks on the CA","Alteration of even a single bit of data in transit (data integrity)","Unauthorized certificate issuance","Replay attacks on Kerberos tickets"],ans:1,exp:"HMAC (Hashed Message Authentication Code) and AEAD (Authenticated Encryption with Associated Data, e.g., AES-GCM) protect data integrity in TLS. Every packet includes an authentication tag. If even one bit of encrypted data is altered in transit — by a network error or an attacker — the authentication check fails and the packet is immediately rejected."},
+  {q:"Which vulnerability exploited SSL 3.0's data padding mechanism in 2014?",opts:["BEAST","Heartbleed","Kerberoasting","POODLE"],ans:3,exp:"POODLE (Padding Oracle On Downgraded Legacy Encryption), discovered in 2014, exploited a weakness in how SSL 3.0 handled CBC-mode padding. An attacker could force a connection to downgrade to SSL 3.0 and then recover one byte of plaintext per 256 requests. POODLE was a major reason SSL 3.0 was completely disabled across the internet."},
+  {q:"Why was SSL deprecated and replaced by TLS?",opts:["SSL was too slow for modern hardware","SSL had fundamental design flaws making it vulnerable to attacks like POODLE and BEAST, and lacked strong cryptographic algorithms","SSL could not support digital certificates","SSL required too many round-trips for the handshake"],ans:1,exp:"SSL was found to have fundamental cryptographic weaknesses exploited by devastating attacks: POODLE (2014) targeted SSL 3.0 padding, BEAST (2011) attacked CBC cipher block chaining, and Heartbleed exposed critical OpenSSL flaws. Additionally, SSL used weak algorithms like RC4 and MD5. TLS replaced it with stronger algorithms, HMAC integrity, and mandatory forward secrecy."},
+  {q:"What key exchange method does TLS 1.3 mandate for Forward Secrecy?",opts:["RSA key exchange","Diffie-Hellman ephemeral key exchange","Pre-shared symmetric key exchange","CA-issued key bundles"],ans:1,exp:"TLS 1.3 mandates ephemeral Diffie-Hellman (DHE or ECDHE) for all key exchanges, eliminating static RSA key exchange used in TLS 1.2. With ephemeral DH, a new key pair is generated for every session and discarded afterward. This guarantees Forward Secrecy — past sessions cannot be decrypted even if the server's long-term private key is later stolen."},
+  {q:"In TLS, what is a 'cipher suite'?",opts:["A collection of trusted CA certificates","A combination of encryption algorithms agreed upon by client and server during the handshake","A set of firewall rules for HTTPS traffic","The session ticket issued after authentication"],ans:1,exp:"A cipher suite is a named combination of cryptographic algorithms specifying the key exchange method (e.g., ECDHE), authentication algorithm (e.g., RSA), bulk encryption algorithm (e.g., AES-256-GCM), and MAC/integrity algorithm (e.g., SHA-384). During the TLS handshake, client and server negotiate which cipher suite both support, prioritizing the strongest option."},
+  {q:"Which TLS version is the current modern standard with best security and performance?",opts:["SSL 3.0","TLS 1.0","TLS 1.2","TLS 1.3"],ans:3,exp:"TLS 1.3, published in 2018 (RFC 8446), is the current gold standard. It eliminates insecure algorithms (RC4, MD5, RSA key exchange), mandates Forward Secrecy, encrypts most of the handshake for privacy, reduces connection establishment to 1 RTT (or 0-RTT for resumption), and drops vulnerable features found in older TLS versions."},
+  {q:"What does the padlock icon in a browser's address bar indicate?",opts:["The website is government-verified","The connection uses TLS/HTTPS and data is encrypted","The website has an EV certificate only","The server is running Kerberos authentication"],ans:1,exp:"The padlock icon indicates the browser has successfully established a TLS/HTTPS connection. This means the connection is encrypted (eavesdroppers cannot read the data), the server's identity has been verified by a trusted CA, and data integrity is protected. It does NOT guarantee the website itself is trustworthy — just that the connection is secure."},
+  {q:"How does TLS 1.3 improve upon TLS 1.2 in terms of privacy during the handshake?",opts:["It removes certificate verification entirely","Most of the handshake itself is encrypted, unlike TLS 1.2 where it is partially visible","It uses symmetric keys for the handshake","It stores session keys on the client device permanently"],ans:1,exp:"In TLS 1.2, significant portions of the handshake — including the certificate exchange — are transmitted in plaintext, meaning a network observer can see which website you're connecting to. TLS 1.3 encrypts most of the handshake from the very beginning, hiding the server's certificate and reducing metadata leakage for substantially better privacy."}
+];
+
+let currentQ = 0;
+const state = Array(questions.length).fill(null).map(() => ({selected:null,review:false}));
+let currentFilter = 'all';
+let resultData = [];
+
+function renderQuestion() {
+  const q = questions[currentQ], s = state[currentQ];
+  document.getElementById('qNumLabel').textContent = `Question ${currentQ+1} of ${questions.length}`;
+  document.getElementById('questionText').textContent = q.q;
+  const c = document.getElementById('optionsContainer');
+  c.innerHTML = '';
+  q.opts.forEach((opt,i) => {
+    const d = document.createElement('div');
+    d.className = 'option' + (s.selected===i?' selected':'');
+    d.innerHTML = `<div class="option-dot"></div><span>${opt}</span>`;
+    d.onclick = () => { state[currentQ].selected=i; renderQuestion(); renderGrid(); updateStatus(); };
+    c.appendChild(d);
+  });
+  renderGrid();
+}
+
+function hutSVG(fc,num,active) {
+  const lc = fc==='hut-unanswered'?'dark':'light';
+  const st = active?' stroke="#0288D1" stroke-width="2.5"':'';
+  return `<div class="q-icon-wrap" onclick="goTo(${num-1})"><svg class="q-svg" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="${fc}"${st}/></svg><span class="q-num-label ${lc}">${num}</span><div class="q-tooltip">Q${num}</div></div>`;
+}
+
+function renderGrid() {
+  document.getElementById('qGrid').innerHTML = state.map((s,i) => {
+    let c;
+    if(i===currentQ) c='hut-active';
+    else if(s.selected!==null&&s.review) c='hut-rev-ans';
+    else if(s.review) c='hut-review';
+    else if(s.selected!==null) c='hut-answered';
+    else c='hut-unanswered';
+    return hutSVG(c,i+1,i===currentQ);
+  }).join('');
+}
+
+function updateStatus() {
+  document.getElementById('answeredCount').textContent = state.filter(s=>s.selected!==null).length+' answered';
+  document.getElementById('reviewCount').textContent = state.filter(s=>s.review).length+' review';
+}
+
+function clearResponse() { state[currentQ].selected=null; renderQuestion(); renderGrid(); updateStatus(); }
+function markReview() { state[currentQ].review=!state[currentQ].review; renderGrid(); updateStatus(); }
+function goTo(idx) { if(idx<0||idx>=questions.length) return; currentQ=idx; renderQuestion(); updateStatus(); }
+
+function submitQuiz() {
+  const unanswered = state.filter(s=>s.selected===null).length;
+  if(unanswered>0 && !confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) return;
+  showResults();
+}
+
+function showResults() {
+  let correct=0,wrong=0,skipped=0;
+  resultData = questions.map((q,i) => {
+    const sel = state[i].selected;
+    let status;
+    if(sel===null){ skipped++; status='skip'; }
+    else if(sel===q.ans){ correct++; status='correct'; }
+    else{ wrong++; status='wrong'; }
+    return {q,sel,status};
+  });
+
+  const pct = Math.round((correct/questions.length)*100);
+  document.getElementById('scoreBig').textContent = `${correct}/${questions.length}`;
+  document.getElementById('scorePct').textContent = `${pct}% Score — ${pct>=75?'Pass':'Below Pass Mark'}`;
+  document.getElementById('statCorrect').textContent = correct;
+  document.getElementById('statWrong').textContent = wrong;
+  document.getElementById('statSkipped').textContent = skipped;
+
+  renderResultList();
+  document.getElementById('quizScreen').style.display='none';
+  document.getElementById('resultScreen').style.display='flex';
+  document.getElementById('resultScreen').style.flexDirection='column';
+  window.scrollTo(0,0);
+}
+
+function renderResultList() {
+  const list = document.getElementById('resultList');
+  const filtered = resultData.filter(d => currentFilter==='all' || d.status===currentFilter);
+  if(filtered.length===0){ list.innerHTML='<p style="text-align:center;color:#888;padding:30px;">No questions in this category.</p>'; return; }
+  list.innerHTML = filtered.map((d,fi) => {
+    const origIdx = resultData.indexOf(d);
+    const {q,sel,status} = d;
+    const cardCls = status==='correct'?'correct-card':status==='wrong'?'wrong-card':'skip-card';
+    const badge = status==='correct'
+      ? '<span class="rc-badge badge-correct">&#10004; Correct</span>'
+      : status==='wrong'
+        ? '<span class="rc-badge badge-wrong">&#10008; Wrong</span>'
+        : '<span class="rc-badge badge-skip">&#8212; Skipped</span>';
+    const optsHtml = q.opts.map((opt,oi) => {
+      let cls='rc-opt', icon='';
+      if(oi===q.ans){ cls+=' opt-correct'; icon='<span class="opt-icon">&#10004;</span>'; }
+      else if(oi===sel&&sel!==q.ans){ cls+=' opt-wrong'; icon='<span class="opt-icon">&#10008;</span>'; }
+      return `<div class="${cls}">${icon}<span>${opt}</span></div>`;
+    }).join('');
+    return `<div class="result-card ${cardCls}">
+      <div class="rc-header"><span class="rc-qnum">Q${origIdx+1}</span>${badge}</div>
+      <div class="rc-question">${q.q}</div>
+      <div class="rc-opts">${optsHtml}</div>
+      <div class="rc-explanation"><strong>Explanation:</strong> ${q.exp}</div>
+    </div>`;
+  }).join('');
+}
+
+function applyFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.className='filter-btn');
+  btn.className = `filter-btn active-${f}`;
+  renderResultList();
+}
+
+function retakeQuiz() {
+  state.forEach(s=>{s.selected=null;s.review=false;});
+  currentQ=0; currentFilter='all';
+  document.getElementById('resultScreen').style.display='none';
+  document.getElementById('quizScreen').style.display='flex';
+  document.querySelectorAll('.filter-btn').forEach((b,i)=>{b.className='filter-btn'+(i===0?' active-all':'');});
+  renderQuestion(); updateStatus();
+}
+
+renderQuestion();
+updateStatus();
+</script>
+</body>
+</html>

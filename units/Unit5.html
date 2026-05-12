@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Network and Web Security – Unit 5 Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  :root {
+    --primary: #2563eb; --primary-dark: #1d4ed8; --primary-light: #dbeafe;
+    --secondary: #7c3aed; --accent: #0ea5e9;
+    --success: #16a34a; --success-light: #dcfce7;
+    --danger: #dc2626; --danger-light: #fee2e2;
+    --warning: #ea580c; --warning-light: #ffedd5;
+    --dark: #0f172a; --gray-50: #f8fafc; --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0; --gray-300: #cbd5e1; --gray-400: #94a3b8;
+    --gray-500: #64748b; --gray-600: #475569; --gray-700: #334155;
+    --gray-800: #1e293b;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0/0.05);
+    --shadow: 0 1px 3px 0 rgb(0 0 0/0.1),0 1px 2px -1px rgb(0 0 0/0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0/0.1),0 2px 4px -2px rgb(0 0 0/0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0/0.1),0 4px 6px -4px rgb(0 0 0/0.1);
+    --radius: 12px; --radius-sm: 8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--gray-50);min-height:100vh;display:flex;flex-direction:column;color:var(--gray-800)}
+  .top-bar{background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);color:white;text-align:center;padding:14px 28px;position:relative;box-shadow:var(--shadow-lg);flex-shrink:0;z-index:10}
+  .top-bar::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");opacity:.4}
+  .tape-fold{position:absolute;top:0;bottom:0;width:24px;background:rgba(0,0,0,.15)}
+  .tape-fold.left{left:0}.tape-fold.right{right:0}
+  .top-bar h1{font-size:20px;font-weight:800;letter-spacing:.5px;text-shadow:0 2px 4px rgba(0,0,0,.2);position:relative}
+  .top-bar p{font-size:13px;opacity:.9;margin-top:4px;font-weight:500;position:relative}
+  .main-layout{display:flex;flex:1;height:calc(100vh - 70px)}
+  .question-area{flex:1;padding:28px 36px;overflow-y:auto;display:flex;flex-direction:column;gap:20px}
+  .q-header{display:flex;justify-content:space-between;align-items:center;background:white;padding:12px 20px;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--gray-200)}
+  .q-num{font-size:13px;color:var(--primary);font-weight:700;background:var(--primary-light);padding:6px 16px;border-radius:20px;border:1.5px solid #93c5fd}
+  .q-marks{font-size:13px;color:var(--success);font-weight:700;background:var(--success-light);padding:6px 16px;border-radius:20px;border:1.5px solid #86efac}
+  .q-text{font-size:16px;color:var(--gray-800);font-weight:500;line-height:1.7;background:white;padding:24px 28px;border-radius:var(--radius);border:1px solid var(--gray-200);box-shadow:var(--shadow);border-left:4px solid var(--primary)}
+  .options{display:flex;flex-direction:column;gap:12px}
+  .option{display:flex;align-items:center;gap:16px;padding:14px 20px;border-radius:var(--radius-sm);border:2px solid var(--gray-200);background:white;cursor:pointer;transition:all .2s cubic-bezier(.4,0,.2,1);font-size:14.5px;color:var(--gray-700);position:relative;overflow:hidden}
+  .option::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent;transition:background .2s}
+  .option:hover{border-color:var(--primary);background:var(--primary-light);transform:translateX(4px);box-shadow:var(--shadow-md)}
+  .option:hover::before{background:var(--primary)}
+  .option.selected{border-color:var(--primary);background:var(--primary-light);font-weight:600;color:var(--primary-dark);box-shadow:var(--shadow-md)}
+  .option.selected::before{background:var(--primary)}
+  .option-dot{width:22px;height:22px;border-radius:50%;border:2.5px solid var(--gray-300);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;background:white}
+  .option.selected .option-dot{border-color:var(--primary);background:var(--primary);transform:scale(1.1)}
+  .option.selected .option-dot::after{content:'';width:9px;height:9px;border-radius:50%;background:white}
+  .option.correct-answer{border-color:#16a34a!important;background:#dcfce7!important;color:#14532d!important;font-weight:700;box-shadow:0 2px 8px rgba(22,163,74,.15)}
+  .option.correct-answer .option-dot{border-color:#16a34a!important;background:#16a34a!important}
+  .option.correct-answer .option-dot::after{content:'✓';width:auto;height:auto;border-radius:0;background:transparent;color:white;font-size:12px;font-weight:900}
+  .option.wrong-answer{border-color:#dc2626!important;background:#fee2e2!important;color:#7f1d1d!important;font-weight:600;text-decoration:line-through;box-shadow:0 2px 8px rgba(220,38,38,.15)}
+  .option.wrong-answer .option-dot{border-color:#dc2626!important;background:#dc2626!important}
+  .option.wrong-answer .option-dot::after{content:'✗';width:auto;height:auto;border-radius:0;background:transparent;color:white;font-size:12px;font-weight:900}
+  .btn-row{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;align-items:center}
+  .btn{padding:10px 22px;border-radius:var(--radius-sm);font-size:13.5px;font-weight:700;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+  .btn-clear{background:white;color:var(--gray-600);border:2px solid var(--gray-300)}.btn-clear:hover{background:var(--gray-100);border-color:var(--gray-400)}
+  .btn-review{background:var(--secondary);color:white;box-shadow:0 2px 8px rgba(124,58,237,.3)}.btn-review:hover{background:#6d28d9;transform:translateY(-1px)}
+  .btn-review.active-review{background:var(--warning);box-shadow:0 2px 8px rgba(234,88,12,.3)}
+  .btn-prev{background:white;color:var(--primary);border:2px solid var(--primary)}.btn-prev:hover{background:var(--primary-light)}
+  .btn-next{background:linear-gradient(135deg,var(--primary) 0%,var(--accent) 100%);color:white;margin-left:auto;box-shadow:0 2px 8px rgba(37,99,235,.3)}.btn-next:hover{background:linear-gradient(135deg,var(--primary-dark) 0%,#0284c7 100%);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.4)}
+  .sidebar{width:220px;background:white;border-left:1px solid var(--gray-200);display:flex;flex-direction:column;flex-shrink:0;box-shadow:-4px 0 15px rgba(0,0,0,.03)}
+  .student-name-box{background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);color:white;padding:14px 14px;text-align:center;position:relative;overflow:hidden}
+  .student-name-box::after{content:'';position:absolute;bottom:-10px;left:0;right:0;height:20px;background:white;border-radius:50% 50% 0 0}
+  .student-name-box .s-label{font-size:10px;opacity:.85;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+  .student-name-box .s-name{font-size:14px;font-weight:800;margin-top:4px;line-height:1.4}
+  .sidebar-legend{padding:16px 14px 10px;border-bottom:1px solid var(--gray-100);margin-top:8px}
+  .legend-item{display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--gray-600);margin-bottom:7px;font-weight:500}
+  .legend-shape{width:22px;height:22px;flex-shrink:0}
+  .hut-answered{fill:var(--success)}.hut-unanswered{fill:white;stroke:var(--gray-300);stroke-width:1.8}.hut-review{fill:var(--secondary)}.hut-rev-ans{fill:var(--warning)}.hut-active{fill:var(--primary)}
+  .sidebar-section-title{font-size:11px;font-weight:700;color:var(--gray-400);padding:12px 14px 6px;text-transform:uppercase;letter-spacing:.8px}
+  .q-grid{padding:6px 12px 12px;display:flex;flex-wrap:wrap;gap:6px;overflow-y:auto;flex:1}
+  .q-icon-wrap{position:relative;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;transition:all .15s;border-radius:8px}
+  .q-icon-wrap:hover{transform:scale(1.15);background:var(--gray-100)}.q-icon-wrap:hover .q-tooltip{opacity:1;transform:translateX(-50%) translateY(-4px)}
+  .q-svg{width:32px;height:32px}
+  .q-num-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:10px;font-weight:800;pointer-events:none;z-index:2;line-height:1}
+  .q-num-label.light{color:white}.q-num-label.dark{color:var(--gray-700)}
+  .q-tooltip{position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:var(--gray-800);color:white;font-size:10px;padding:4px 10px;border-radius:6px;white-space:nowrap;opacity:0;transition:all .2s;pointer-events:none;z-index:99;font-weight:600;box-shadow:var(--shadow-md)}
+  .status-bar{padding:10px 14px;background:var(--gray-50);border-top:1px solid var(--gray-200);font-size:11.5px;color:var(--gray-500);display:flex;justify-content:space-between;font-weight:600}
+  .submit-btn{margin:12px 14px 16px;padding:12px;background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);color:white;border:none;border-radius:var(--radius-sm);font-size:13.5px;font-weight:800;cursor:pointer;transition:all .2s;box-shadow:0 4px 12px rgba(37,99,235,.3);letter-spacing:.3px}
+  .submit-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,99,235,.4)}
+  #resultScreen{display:none;flex-direction:column;flex:1;overflow-y:auto;background:var(--gray-50)}
+  .score-banner{background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);color:white;padding:40px 32px;text-align:center;position:relative;overflow:hidden}
+  .score-banner::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+  .score-banner .tape-fold{background:rgba(0,0,0,.15)}
+  .score-banner h2{font-size:22px;font-weight:800;margin-bottom:10px;position:relative}
+  .score-big{font-size:64px;font-weight:900;line-height:1;position:relative;text-shadow:0 4px 8px rgba(0,0,0,.2)}
+  .score-sub{font-size:16px;opacity:.92;margin-top:8px;font-weight:600;position:relative}
+  .pass-badge{display:inline-block;margin-top:12px;padding:6px 20px;border-radius:20px;font-size:14px;font-weight:700;background:rgba(255,255,255,.2);backdrop-filter:blur(4px)}
+  .score-stats{display:flex;gap:16px;padding:24px 32px;background:white;border-bottom:1px solid var(--gray-200);flex-wrap:wrap}
+  .stat-box{flex:1;min-width:100px;text-align:center;padding:18px 12px;border-radius:var(--radius);border:2px solid transparent;transition:transform .2s}.stat-box:hover{transform:translateY(-2px)}
+  .stat-box.correct{background:var(--success-light);border-color:#86efac}.stat-box.wrong{background:var(--danger-light);border-color:#fca5a5}.stat-box.skipped{background:#f3e8ff;border-color:#d8b4fe}
+  .stat-box .s-val{font-size:36px;font-weight:900}
+  .stat-box.correct .s-val{color:var(--success)}.stat-box.wrong .s-val{color:var(--danger)}.stat-box.skipped .s-val{color:var(--secondary)}
+  .stat-box .s-lbl{font-size:13px;color:var(--gray-500);font-weight:700;margin-top:6px}
+  .filter-bar{display:flex;gap:10px;padding:18px 32px;background:white;border-bottom:1px solid var(--gray-200);flex-wrap:wrap}
+  .filter-btn{padding:8px 18px;border-radius:20px;font-size:12.5px;font-weight:700;cursor:pointer;border:2px solid var(--gray-200);background:white;color:var(--gray-600);transition:all .2s}.filter-btn:hover{border-color:var(--gray-300);background:var(--gray-50)}
+  .filter-btn.active-all{background:var(--primary);color:white;border-color:var(--primary);box-shadow:0 2px 8px rgba(37,99,235,.3)}
+  .filter-btn.active-correct{background:var(--success);color:white;border-color:var(--success);box-shadow:0 2px 8px rgba(22,163,74,.3)}
+  .filter-btn.active-wrong{background:var(--danger);color:white;border-color:var(--danger);box-shadow:0 2px 8px rgba(220,38,38,.3)}
+  .filter-btn.active-skip{background:var(--secondary);color:white;border-color:var(--secondary);box-shadow:0 2px 8px rgba(124,58,237,.3)}
+  .result-list{padding:24px 32px;display:flex;flex-direction:column;gap:20px}
+  .result-card{background:white;border-radius:var(--radius);padding:22px 26px;border-left:5px solid #ccc;box-shadow:var(--shadow);transition:all .2s}.result-card:hover{box-shadow:var(--shadow-md);transform:translateX(4px)}
+  .result-card.correct-card{border-left-color:var(--success)}.result-card.wrong-card{border-left-color:var(--danger)}.result-card.skip-card{border-left-color:var(--gray-400)}
+  .rc-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+  .rc-qnum{font-size:12px;font-weight:700;color:var(--gray-400);white-space:nowrap}
+  .rc-badge{font-size:12px;font-weight:800;padding:4px 12px;border-radius:20px;white-space:nowrap}
+  .badge-correct{background:var(--success-light);color:var(--success)}.badge-wrong{background:var(--danger-light);color:var(--danger)}.badge-skip{background:var(--gray-100);color:var(--gray-500)}
+  .rc-question{font-size:15px;font-weight:600;color:var(--gray-800);line-height:1.6;margin-bottom:14px}
+  .rc-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+  .rc-opt{font-size:13.5px;padding:9px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--gray-200);color:var(--gray-600);display:flex;align-items:center;gap:10px;transition:all .15s}
+  .rc-opt.opt-correct{background:var(--success-light);border-color:#86efac;color:#14532d;font-weight:700;box-shadow:0 1px 3px rgba(22,163,74,.1)}
+  .rc-opt.opt-wrong{background:var(--danger-light);border-color:#fca5a5;color:#7f1d1d;font-weight:600;text-decoration:line-through;box-shadow:0 1px 3px rgba(220,38,38,.1)}
+  .rc-opt .opt-icon{font-size:15px;flex-shrink:0}
+  .rc-explanation{background:var(--primary-light);border:1px solid #93c5fd;border-radius:var(--radius-sm);padding:14px 18px;font-size:13.5px;color:#1e3a5f;line-height:1.7;border-left:3px solid var(--primary)}
+  .rc-explanation strong{color:var(--primary-dark)}
+  .retake-bar{padding:24px 32px;background:white;border-top:1px solid var(--gray-200);display:flex;gap:14px;justify-content:center;flex-shrink:0}
+  .retake-btn{padding:12px 32px;border-radius:var(--radius-sm);font-size:14.5px;font-weight:800;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+  .retake-btn.primary{background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);color:white;box-shadow:0 4px 12px rgba(37,99,235,.3)}.retake-btn.primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,99,235,.4)}
+  .retake-btn.secondary{background:white;color:var(--primary);border:2px solid var(--primary)}.retake-btn.secondary:hover{background:var(--primary-light)}
+  ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:var(--gray-400)}
+  @media(max-width:768px){.sidebar{width:180px}.question-area{padding:16px 20px}.score-big{font-size:48px}}
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="tape-fold left"></div>
+  <div class="tape-fold right"></div>
+  <h1>Network and Web Security – Unit 5</h1>
+  <p>Zero Trust Architecture · Smart Contract Security · Blockchain Identity · Penetration Testing · Quantum-safe Cryptography</p>
+</div>
+
+<div id="quizScreen" style="display:flex;flex:1;">
+  <div class="main-layout">
+    <div class="question-area">
+      <div class="q-header">
+        <span class="q-num" id="qNumLabel">Question 1 of 40</span>
+        <span class="q-marks">Marks: 1</span>
+      </div>
+      <div class="q-text" id="questionText">Loading...</div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="btn-row">
+        <button class="btn btn-clear" onclick="clearResponse()">Clear Response</button>
+        <button class="btn btn-review" id="reviewBtn" onclick="markReview()">Mark for Review</button>
+        <button class="btn btn-prev" onclick="goTo(currentQ-1)">Previous</button>
+        <button class="btn btn-next" onclick="goTo(currentQ+1)">Next</button>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="student-name-box">
+        <div class="s-label">Student</div>
+        <div class="s-name">Umesh Kumar Mishra</div>
+      </div>
+      <div class="sidebar-legend">
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-answered"/></svg>Answered</div>
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-unanswered"/></svg>Not Answered</div>
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-review"/></svg>Mark for Review</div>
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-rev-ans"/></svg>Answered + Review</div>
+      </div>
+      <div class="sidebar-section-title">Questions</div>
+      <div class="q-grid" id="qGrid"></div>
+      <div class="status-bar"><span id="answeredCount">0 answered</span><span id="reviewCount">0 review</span></div>
+      <button class="submit-btn" onclick="submitQuiz()">Submit Quiz</button>
+    </div>
+  </div>
+</div>
+
+<div id="resultScreen">
+  <div class="score-banner">
+    <div class="tape-fold left"></div>
+    <div class="tape-fold right"></div>
+    <h2>Quiz Results — Umesh Kumar Mishra</h2>
+    <div class="score-big" id="scoreBig">0/40</div>
+    <div class="score-sub" id="scorePct">0% Score</div>
+    <div class="pass-badge" id="passBadge">Below Pass Mark</div>
+  </div>
+  <div class="score-stats">
+    <div class="stat-box correct"><div class="s-val" id="statCorrect">0</div><div class="s-lbl">Correct</div></div>
+    <div class="stat-box wrong"><div class="s-val" id="statWrong">0</div><div class="s-lbl">Wrong</div></div>
+    <div class="stat-box skipped"><div class="s-val" id="statSkipped">0</div><div class="s-lbl">Skipped</div></div>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn active-all" onclick="applyFilter('all',this)">All Questions</button>
+    <button class="filter-btn" onclick="applyFilter('correct',this)">Correct Only</button>
+    <button class="filter-btn" onclick="applyFilter('wrong',this)">Wrong Only</button>
+    <button class="filter-btn" onclick="applyFilter('skip',this)">Skipped Only</button>
+  </div>
+  <div class="result-list" id="resultList"></div>
+  <div class="retake-bar">
+    <button class="retake-btn secondary" onclick="retakeQuiz()">Retake Quiz</button>
+    <button class="retake-btn primary" onclick="window.print()">Print Results</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+
+  // ── ZERO TRUST ARCHITECTURE ──────────────────────────────────────────────
+  {q:"What is the core principle of Zero Trust Architecture (ZTA)?",
+   opts:["Trust all internal network users by default","Never trust, always verify — every request requires explicit verification","Trust external users only after firewall inspection","Verify users once at login and trust throughout the session"],
+   ans:1,
+   exp:"Zero Trust Architecture operates on 'Never trust, always verify.' No user, device, or service is implicitly trusted regardless of network location. Every single request must be authenticated, authorized, and continuously validated. This is the fundamental shift from perimeter-based (castle-and-moat) security to identity-centric security."},
+
+  {q:"In the VPN breach scenario, the traditional perimeter model failed because:",
+   opts:["The VPN was not encrypted","Once inside the network, the attacker was treated as a legitimate internal user and could move laterally","The attacker guessed the password easily","The server had no firewall"],
+   ans:1,
+   exp:"Traditional perimeter security operates on the assumption that 'inside = trusted.' Once the attacker compromised a VPN account and entered the network, they were treated like any trusted employee. Without micro-segmentation or continuous verification, they could move laterally — accessing servers, databases, and sensitive resources — completely unchecked."},
+
+  {q:"Which Zero Trust control specifically prevents an attacker from moving laterally after gaining initial network access?",
+   opts:["Multi-Factor Authentication","Micro-segmentation","Password complexity rules","VPN tunneling"],
+   ans:1,
+   exp:"Micro-segmentation divides the network into isolated zones. Even if an attacker compromises one segment (e.g., an employee workstation), they cannot access other segments (e.g., the database server or HR systems) without separate authentication and authorization. Each resource is protected individually, drastically limiting the 'blast radius' of any breach."},
+
+  {q:"Device verification in Zero Trust Architecture ensures that:",
+   opts:["Only devices with the latest games installed can connect","Only managed, healthy, and compliant devices are permitted to access resources","All personal devices are permanently blocked","Device passwords match the user's password"],
+   ans:1,
+   exp:"Device verification (also called device posture checking) ensures that connecting devices meet organizational security standards — they must be enrolled in Mobile Device Management (MDM), have current OS patches, have antivirus running, and not be jailbroken/rooted. An attacker using a compromised but non-compliant device would be blocked even with valid credentials."},
+
+  {q:"Which access control model is recommended in Zero Trust to assign the minimum necessary permissions?",
+   opts:["Discretionary Access Control (DAC)","Mandatory Access Control (MAC)","Role-Based Access Control (RBAC) with Least Privilege","Full Administrator Access for all users"],
+   ans:2,
+   exp:"Role-Based Access Control (RBAC) combined with the Principle of Least Privilege ensures users and services only access exactly what they need for their specific role. A sales employee should have access to CRM systems but not HR databases. This containment means a compromised account causes minimal damage because its permissions are already restricted."},
+
+  {q:"Continuous logging and anomaly detection in ZTA helps by:",
+   opts:["Speeding up website loading times","Detecting suspicious behavior like 'impossible travel' or unusual access times that indicate session hijacking","Compressing network traffic","Replacing the need for passwords"],
+   ans:1,
+   exp:"Continuous monitoring analyzes behavioral signals in real-time. 'Impossible travel' — logging in from Mumbai at 9 AM and New York at 9:05 AM — is a physical impossibility flagging a stolen credential. Unusual resource access outside normal working hours, sudden large data downloads, or access to never-before-visited systems can all trigger automatic alerts or session termination."},
+
+  {q:"A major challenge organizations face when transitioning to Zero Trust is:",
+   opts:["Zero Trust is free to implement","Integration complexity with legacy systems that were not designed for continuous verification","Zero Trust eliminates the need for IT staff","Users prefer Zero Trust over traditional models"],
+   ans:1,
+   exp:"Legacy systems — mainframes, old ERP software, on-premises databases — were designed for perimeter trust models and often cannot support modern identity tokens, device health checks, or API-based authorization. Retrofitting them for ZTA requires significant investment, middleware, or replacement. This integration complexity is the biggest technical hurdle alongside high initial implementation costs."},
+
+  {q:"Which authentication mechanism does Zero Trust Architecture recommend as the strongest form of user verification?",
+   opts:["Simple username and password","SMS-based OTP only","Multi-Factor Authentication (MFA) using hardware tokens or FIDO2","Security questions and answers"],
+   ans:2,
+   exp:"Zero Trust mandates strong authentication. MFA using hardware tokens (FIDO2/WebAuthn/Passkeys) is the gold standard because the cryptographic private key never leaves the physical device and authentication is bound to the specific domain. Unlike passwords or SMS OTPs, FIDO2 hardware tokens are phishing-resistant and cannot be intercepted by Adversary-in-the-Middle attacks."},
+
+  // ── SMART CONTRACT SECURITY ───────────────────────────────────────────────
+  {q:"In a reentrancy attack on a smart contract, what critical mistake allows the attacker to drain funds?",
+   opts:["The contract uses too much gas","The contract sends funds to the attacker BEFORE updating its own internal balance","The contract uses an old Solidity version","The contract stores passwords in plaintext"],
+   ans:1,
+   exp:"Reentrancy attacks exploit improper ordering of operations. When the vulnerable contract sends ETH to the attacker before deducting the balance, the attacker's malicious fallback function calls withdraw() again immediately. Since the balance hasn't been updated yet, the contract thinks the attacker still has funds — allowing repeated withdrawals until the contract is drained. This is exactly what happened in the famous $60M DAO Hack of 2016."},
+
+  {q:"The Checks-Effects-Interactions (CEI) pattern in smart contract security requires:",
+   opts:["First interact with external contracts, then check conditions","First check conditions, then update state (effects), then interact with external contracts","Interact randomly to confuse attackers","Check conditions after each interaction"],
+   ans:1,
+   exp:"The CEI pattern is the primary defense against reentrancy. Checks: verify all preconditions (e.g., sufficient balance). Effects: update all internal state variables (e.g., balance[msg.sender] -= amount). Interactions: only then call external contracts or send ETH. By updating state BEFORE the external call, any reentrant call finds the updated (reduced) balance and the withdrawal fails."},
+
+  {q:"A reentrancy guard (mutex) prevents reentrancy attacks by:",
+   opts:["Encrypting all contract data","Blocking a function from being called again while it is still executing","Limiting the gas used per transaction","Requiring all users to register first"],
+   ans:1,
+   exp:"A reentrancy guard uses a boolean 'locked' flag. When a function starts executing, it sets locked = true. If a reentrant call tries to invoke the same function again, the require(!locked) check fails and reverts the transaction. The flag is only reset to false when the original function completes fully. OpenZeppelin's ReentrancyGuard is the standard library implementation."},
+
+  {q:"The DAO Hack of 2016 resulted in the loss of approximately:",
+   opts:["$1 million","$10 million","$60 million","$1 billion"],
+   ans:2,
+   exp:"The DAO Hack of 2016 exploited a reentrancy vulnerability and drained approximately $60 million worth of Ether. This was one of the most significant events in blockchain history, ultimately leading to a controversial hard fork of the Ethereum blockchain to reverse the theft — creating Ethereum (ETH) and Ethereum Classic (ETC) as two separate chains."},
+
+  {q:"Which secure pseudocode correctly implements the Checks-Effects-Interactions pattern for a withdrawal function?",
+   opts:["Send funds → then check balance → then update balance","Check balance → Send funds → Update balance","Check balance → Update balance → Send funds","Update balance → Check balance → Send funds"],
+   ans:2,
+   exp:"The correct CEI order is: CHECK (require balance >= amount), EFFECT (balance[msg.sender] -= amount), INTERACTION (send the ETH). Updating the balance BEFORE sending ensures that any reentrant call to withdraw() will find balance = 0 and fail the require check. This is the fundamental fix — state is already correct before any external code runs."},
+
+  {q:"Besides reentrancy, which other common smart contract vulnerability involves relying on block.timestamp for critical logic?",
+   opts:["Integer overflow","Front-running","Timestamp manipulation","Phishing"],
+   ans:2,
+   exp:"Miners (validators) have a small degree of control over block.timestamp — they can manipulate it by a few seconds. Smart contracts that use block.timestamp for lottery fairness, auction deadlines, or random number generation can be exploited. Attackers (or colluding miners) adjust timestamps to influence outcomes in their favor. Critical logic should use block numbers or external oracle randomness instead."},
+
+  {q:"What is the recommended approach if a smart contract MUST make an external call that could fail?",
+   opts:["Ignore the return value","Use try-catch or check the return value to handle failures gracefully","Revert all transactions that involve external calls","Use a centralized server instead"],
+   ans:1,
+   exp:"External calls in Solidity can fail silently if not handled properly. Using try-catch blocks or checking the bool success return value of low-level .call() ensures the contract responds correctly to failures. Unchecked external call failures can leave contracts in inconsistent states — for example, sending funds but not recording the payment — creating exploitable logic errors."},
+
+  // ── BLOCKCHAIN-BASED IDENTITY MANAGEMENT ─────────────────────────────────
+  {q:"What is the primary security disadvantage of a centralized identity system like Aadhaar?",
+   opts:["It is too slow","It creates a single point of failure — breaching one central database compromises all identities","It cannot store biometric data","It requires too many servers"],
+   ans:1,
+   exp:"Centralized identity systems store all identity records in one (or few) databases controlled by a central authority. This creates a honeypot — a single high-value target. A breach of the central database (through hacking, insider threat, or data leak) compromises the identity data of every registered user simultaneously. In contrast, blockchain-based systems distribute data, eliminating this single point of failure."},
+
+  {q:"In a blockchain-based decentralized identity system, what does the blockchain actually store?",
+   opts:["Full copies of citizens' identity documents","Cryptographic hashes or credential proofs, not raw personal data","Encrypted passwords","Social security numbers in plaintext"],
+   ans:1,
+   exp:"A blockchain-based identity system stores only cryptographic hashes or credential proofs — not actual personal data. The real identity data remains with the user or issuer. The blockchain acts as a tamper-proof, publicly verifiable ledger of credential authenticity. If someone presents a credential, the verifier checks its hash against the blockchain to confirm it hasn't been forged or revoked — without exposing the underlying data."},
+
+  {q:"Self-Sovereign Identity (SSI) means:",
+   opts:["The government controls all identity data","Users fully own and control their identity data, sharing only what is needed","Corporations manage identity on behalf of users","Identity is stored on a single trusted server"],
+   ans:1,
+   exp:"Self-Sovereign Identity is the principle that individuals should own, control, and manage their own identity data without relying on any central authority. Users hold cryptographic private keys that control their identity. They choose what information to share, with whom, and for how long. A user can prove they are over 18 to a service without revealing their exact birth date — a property called selective disclosure."},
+
+  {q:"Which architecture component in decentralized identity is responsible for issuing verifiable credentials (e.g., a university degree)?",
+   opts:["The Verifier","The Blockchain","The Issuer","The Wallet"],
+   ans:2,
+   exp:"In the decentralized identity trust triangle: the Issuer (e.g., a university, bank, or government) creates and signs verifiable credentials. The Holder (user) stores credentials in their digital wallet. The Verifier (e.g., an employer) checks the credential's authenticity. The blockchain provides the public infrastructure for credential verification — containing the issuer's public key and revocation information."},
+
+  {q:"A major scalability challenge for blockchain-based identity systems is:",
+   opts:["Too many identity types","Transaction throughput — public blockchains can process only limited transactions per second, causing delays","Lack of internet access","High cost of smartphones"],
+   ans:1,
+   exp:"Public blockchains like Ethereum can process only ~15-30 transactions per second (Layer 1). A national identity system serving hundreds of millions of citizens — where multiple verification events occur every second — would overwhelm this capacity. Solutions include Layer 2 scaling (rollups), permissioned/consortium blockchains (higher throughput), or off-chain storage with on-chain anchoring. Speed vs. decentralization remains the core trade-off."},
+
+  // ── PENETRATION TESTING ───────────────────────────────────────────────────
+  {q:"In the penetration testing lifecycle, SQL Injection exploitation maps to which phase?",
+   opts:["Reconnaissance","Scanning / Enumeration","Exploitation","Reporting"],
+   ans:2,
+   exp:"SQL Injection is actively exploited in the Exploitation phase — the third phase of penetration testing. In the prior Reconnaissance phase, testers gather information about the target. In the Scanning phase, they probe for vulnerabilities (e.g., using SQLMap to detect injectable parameters). Exploitation is where the tester actually executes the SQL Injection payload to demonstrate impact, such as bypassing authentication or extracting data."},
+
+  {q:"How does the classic SQL Injection payload ' OR '1'='1 bypass a login form?",
+   opts:["It crashes the database server","It makes the WHERE clause always evaluate to true, returning all user records and granting access","It deletes the users table","It encrypts the password field"],
+   ans:1,
+   exp:"When the input ' OR '1'='1 is injected into a login query, it becomes: SELECT * FROM users WHERE username='' OR '1'='1'. Since '1'='1' is always true, the entire WHERE clause evaluates to true for every row. The database returns all users. The application sees a valid result, assumes authentication succeeded, and grants access — often as the first user in the table, which is frequently an administrator account."},
+
+  {q:"Session IDs exposed in URLs (e.g., example.com/dashboard?sessionid=abc123) are a vulnerability because:",
+   opts:["URLs are always encrypted","Session IDs in URLs appear in browser history, server logs, and referrer headers — allowing theft by anyone with log access","URLs cannot contain session IDs","This is a standard secure practice"],
+   ans:1,
+   exp:"URL-based session IDs are dangerous because URLs are logged everywhere — web server access logs, browser history, proxy logs, and referrer headers sent to third-party sites. An attacker (or malicious insider) with access to any of these logs can steal valid session tokens and hijack user sessions without ever breaking encryption. Session IDs must be stored in HttpOnly cookies, never in URLs."},
+
+  {q:"The correct remediation for a weak password policy during penetration testing is:",
+   opts:["Accept any password to improve user experience","Enforce minimum length (12+ chars), complexity (uppercase, numbers, symbols), and check against known-breached password lists","Store passwords in a spreadsheet","Require password changes every 7 days without complexity rules"],
+   ans:1,
+   exp:"A strong password policy requires: minimum 12-16 characters, a mix of uppercase, lowercase, numbers, and symbols. Critically, check new passwords against breached password databases (like HIBP — Have I Been Pwned) to block known compromised passwords. Passwords must be hashed using Argon2id or Bcrypt — never stored in plaintext or with MD5. Combine with MFA for defense in depth."},
+
+  {q:"Which penetration testing phase involves passive information gathering such as WHOIS lookups, LinkedIn employee research, and DNS enumeration?",
+   opts:["Exploitation","Post-exploitation","Reconnaissance","Reporting"],
+   ans:2,
+   exp:"Reconnaissance (also called information gathering or OSINT) is the first phase where testers collect publicly available information about the target without actively probing it. This includes WHOIS lookups for domain ownership, DNS enumeration for subdomains, LinkedIn for employee names and technologies used, Shodan for exposed devices, and job postings that reveal technology stacks. This phase maps the attack surface before active testing begins."},
+
+  {q:"A penetration test report should include:",
+   opts:["Only technical exploit code","Executive summary, vulnerability findings with risk ratings, proof-of-concept, and remediation recommendations","Just the names of vulnerabilities found","Only what the client paid extra to receive"],
+   ans:1,
+   exp:"A professional penetration test report contains: Executive Summary (high-level findings for management, business risk impact), Technical Findings (each vulnerability with severity rating — Critical/High/Medium/Low — CVE references, proof-of-concept evidence, and affected systems), Remediation Recommendations (specific, actionable fix guidance), and a Risk Matrix showing aggregate risk posture. The goal is to enable the organization to understand and fix vulnerabilities efficiently."},
+
+  {q:"Using SQLMap during penetration testing automates which activity?",
+   opts:["Social engineering users","Detecting and exploiting SQL Injection vulnerabilities in web applications","Generating phishing emails","Scanning for open WiFi networks"],
+   ans:1,
+   exp:"SQLMap is an open-source penetration testing tool that automates the detection and exploitation of SQL Injection vulnerabilities. It can automatically identify injectable parameters, determine the database type (MySQL, PostgreSQL, MSSQL, Oracle), dump database schemas and data, and in some cases escalate to OS command execution. Ethical penetration testers use it with explicit written authorization to assess web application security."},
+
+  // ── QUANTUM-SAFE CRYPTOGRAPHY ─────────────────────────────────────────────
+  {q:"Given p=11, q=13, what is the value of n (RSA modulus)?",
+   opts:["120","143","24","154"],
+   ans:1,
+   exp:"In RSA, n = p × q. With p=11 and q=13: n = 11 × 13 = 143. The modulus n is the public value used in both the public key (e, n) and private key (d, n). It must be very large (2048+ bits) in practice to resist factoring attacks. With small values like p=11 and q=13, n=143 is trivially factorable, illustrating why real RSA uses large primes."},
+
+  {q:"Given p=11, q=13, what is the value of φ(n) (Euler's totient)?",
+   opts:["143","120","110","130"],
+   ans:1,
+   exp:"φ(n) = (p-1)(q-1). With p=11 and q=13: φ(n) = (11-1)(13-1) = 10 × 12 = 120. Euler's totient function counts integers up to n that are coprime with n. In RSA, φ(n) is used to compute the private key d and must be kept secret — knowledge of φ(n) allows factoring n and breaking the key pair."},
+
+  {q:"If e=7 and φ(n)=120, the RSA private key d satisfies which equation?",
+   opts:["d = e × φ(n)","7d ≡ 1 (mod 120), so d = 103","d = φ(n) / e","d = e + φ(n)"],
+   ans:1,
+   exp:"The private key d is the modular multiplicative inverse of e modulo φ(n): d ≡ e⁻¹ (mod φ(n)). We need 7d ≡ 1 (mod 120). Using the extended Euclidean algorithm: 7 × 103 = 721 = 6 × 120 + 1, so 7 × 103 ≡ 1 (mod 120). Therefore d = 103. The public key is (7, 143) and the private key is (103, 143)."},
+
+  {q:"Shor's Algorithm, running on a sufficiently powerful quantum computer, threatens RSA because it can:",
+   opts:["Guess passwords faster","Factor large integers in polynomial time, breaking the mathematical hardness that RSA depends on","Crack AES encryption","Generate stronger encryption keys"],
+   ans:1,
+   exp:"RSA's security rests entirely on the computational hardness of factoring large integers — classical computers need exponential time to factor n into p and q. Shor's Algorithm, developed by Peter Shor in 1994, can factor integers in polynomial time using quantum superposition and interference. A quantum computer running Shor's can find p and q from n, compute φ(n), and recover d — completely breaking RSA."},
+
+  {q:"Lattice-based cryptography is considered quantum-safe because it relies on the hardness of:",
+   opts:["Factoring large integers","The Shortest Vector Problem (SVP) in high-dimensional lattices, which even quantum algorithms cannot solve efficiently","Discrete logarithm problems","Solving differential equations"],
+   ans:1,
+   exp:"Lattice-based cryptography bases its security on mathematical problems in high-dimensional lattice structures — primarily the Shortest Vector Problem (SVP) and Learning With Errors (LWE). No known quantum algorithm (including Shor's or Grover's) can solve these problems efficiently. This makes lattice-based schemes like CRYSTALS-Kyber (for key exchange) and CRYSTALS-Dilithium (for digital signatures) the leading candidates standardized by NIST for post-quantum security."},
+
+  {q:"Hash-based cryptography is quantum-safe because:",
+   opts:["Hash functions are faster than RSA","Hash functions rely on one-way properties — even Grover's quantum algorithm provides only a quadratic speedup, which is manageable by doubling hash output size","Hashes cannot be stored in quantum computers","Quantum computers cannot run hash functions"],
+   ans:1,
+   exp:"Hash-based signatures (like XMSS and SPHINCS+) rely solely on the security of cryptographic hash functions. Grover's quantum algorithm provides a quadratic speedup for brute-force search, reducing SHA-256's effective security from 256 bits to 128 bits — still computationally infeasible. By using larger outputs (SHA-384 or SHA-512), hash-based systems remain secure. SPHINCS+ has been standardized by NIST (FIPS 205) as a post-quantum signature scheme."},
+
+  {q:"NIST (National Institute of Standards and Technology) standardized which lattice-based algorithm for key encapsulation in 2024?",
+   opts:["RSA-4096","CRYSTALS-Kyber (now called ML-KEM, FIPS 203)","SHA-3","Diffie-Hellman"],
+   ans:1,
+   exp:"In August 2024, NIST finalized its post-quantum cryptography standards. CRYSTALS-Kyber, now standardized as ML-KEM (Module-Lattice-Based Key Encapsulation Mechanism, FIPS 203), is the primary quantum-safe algorithm for key establishment. CRYSTALS-Dilithium (ML-DSA, FIPS 204) is standardized for digital signatures. These replace RSA and ECC in environments where quantum threats are a concern."},
+
+  {q:"'Harvest now, decrypt later' attacks are a motivation for deploying post-quantum cryptography TODAY because:",
+   opts:["Attackers harvest energy from devices","Adversaries collect encrypted traffic today and will decrypt it with future quantum computers once available","Classical computers have already broken RSA","All current encryption is already broken"],
+   ans:1,
+   exp:"'Harvest now, decrypt later' (also called retroactive decryption) is a strategy where adversaries — particularly nation-state actors — record encrypted communications today (government secrets, financial transactions, medical records). When sufficiently powerful quantum computers become available in 5-15 years, they will use Shor's Algorithm to decrypt this historical data. Sensitive information that must remain secret for decades should be protected with post-quantum algorithms now."},
+
+  {q:"Which property makes RSA vulnerable but symmetric encryption like AES relatively more quantum-resistant?",
+   opts:["RSA is older than AES","RSA's security depends on mathematical problems (factoring) that Shor's Algorithm breaks exponentially; AES is only weakened quadratically by Grover's algorithm","AES uses smaller keys than RSA","RSA requires more storage space"],
+   ans:1,
+   exp:"RSA and ECC depend on mathematical problems (integer factorization, discrete logarithm) that Shor's Algorithm breaks in polynomial time — a devastating exponential speedup. AES (symmetric encryption) is only threatened by Grover's Algorithm, which provides a quadratic speedup, reducing AES-256's effective strength to 128 bits. This is easily countered by using AES-256 (or switching to AES-512). Symmetric encryption is 'quantum-resistant' with appropriate key sizes; asymmetric encryption needs complete algorithm replacement."},
+
+  {q:"Code-based cryptography (like McEliece) is another post-quantum candidate. Its security is based on:",
+   opts:["The hardness of solving Sudoku puzzles","The difficulty of decoding a random linear error-correcting code — a problem proven NP-hard","The speed of hash functions","The complexity of matrix multiplication"],
+   ans:1,
+   exp:"Code-based cryptography, proposed by Robert McEliece in 1978, bases its security on the hardness of decoding a general linear code — specifically the Syndrome Decoding Problem, which is NP-hard. No known quantum algorithm significantly speeds up the solution of this problem. McEliece has withstood 45+ years of cryptanalysis, making it one of the most battle-tested post-quantum candidates, though its large key sizes (megabytes) have limited practical adoption."},
+
+  {q:"Forward Secrecy (Perfect Forward Secrecy) in post-quantum contexts means:",
+   opts:["All future sessions use the same key","Each session generates a unique ephemeral key pair; compromising the long-term key cannot decrypt past sessions","Session keys are stored for future audit","Future quantum computers will not affect current sessions"],
+   ans:1,
+   exp:"Perfect Forward Secrecy (PFS) generates a fresh ephemeral key pair for each session. The session key is derived from this ephemeral pair and discarded after the session ends. Even if a long-term private key is later compromised (including by a future quantum computer), past recorded sessions cannot be decrypted because their ephemeral keys no longer exist. TLS 1.3 mandates PFS by eliminating static RSA key exchange, using only ephemeral Diffie-Hellman variants."},
+
+  {q:"When comparing RSA and lattice-based cryptography, which statement about key sizes is accurate?",
+   opts:["Lattice-based keys are always smaller than RSA keys","RSA requires 2048-4096 bit keys for classical security; lattice-based schemes offer comparable quantum security with 1-2 KB keys","Both use exactly 256-bit keys","Lattice keys are measured in megabytes only"],
+   ans:1,
+   exp:"RSA requires very large keys (2048-4096+ bits) to resist classical factoring attacks. Lattice-based algorithms like CRYSTALS-Kyber offer quantum security with public keys around 1-2 kilobytes — significantly smaller than code-based alternatives (McEliece uses megabyte-sized keys) and practical for modern systems. This makes lattice-based cryptography the most deployable post-quantum option for TLS, email, and mobile applications."},
+
+  {q:"Which two post-quantum algorithms were standardized by NIST in 2024 for digital signatures?",
+   opts:["RSA-PSS and ECDSA","CRYSTALS-Dilithium (ML-DSA) and SPHINCS+ (SLH-DSA)","SHA-256 and HMAC","Diffie-Hellman and ElGamal"],
+   ans:1,
+   exp:"NIST's 2024 post-quantum standards include two signature schemes: CRYSTALS-Dilithium (now ML-DSA, FIPS 204) — a lattice-based scheme that is efficient and has small signatures; and SPHINCS+ (now SLH-DSA, FIPS 205) — a stateless hash-based scheme with larger signatures but extremely conservative security assumptions relying only on hash function security. FALCON (FN-DSA, FIPS 206) was also standardized as a third signature algorithm."},
+
+  {q:"Why is it a critical mistake to implement your own cryptographic algorithm instead of using standardized ones?",
+   opts:["Custom algorithms are too fast","Cryptography is extremely difficult to implement correctly — subtle mathematical errors create exploitable vulnerabilities; standardized algorithms have been analyzed by thousands of experts for years","Custom algorithms violate patents","Standardized algorithms are slower"],
+   ans:1,
+   exp:"'Don't roll your own crypto' is one of the most fundamental security principles. Designing a secure cryptographic algorithm requires deep mathematical expertise and years of public peer review. Amateur implementations almost always contain subtle flaws — biased random number generation, timing side-channels, incorrect padding, or mathematical errors — that experienced cryptanalysts can exploit even if the algorithm 'looks secure.' Use NIST-standardized algorithms (AES, SHA-3, ML-KEM) implemented in audited libraries."}
+
+];
+
+let currentQ = 0;
+const state = Array(questions.length).fill(null).map(() => ({selected:null,review:false}));
+let currentFilter = 'all';
+let resultData = [];
+
+function renderQuestion() {
+  const q = questions[currentQ], s = state[currentQ];
+  document.getElementById('qNumLabel').textContent = `Question ${currentQ+1} of ${questions.length}`;
+  document.getElementById('questionText').textContent = q.q;
+  const c = document.getElementById('optionsContainer');
+  c.innerHTML = '';
+  const isRevealed = s.selected !== null;
+  q.opts.forEach((opt,i) => {
+    const d = document.createElement('div');
+    let extraClass = '';
+    if(isRevealed){
+      if(i===q.ans) extraClass=' correct-answer';
+      else if(i===s.selected&&i!==q.ans) extraClass=' wrong-answer';
+    }
+    d.className='option'+(s.selected===i?' selected':'')+extraClass;
+    d.innerHTML=`<div class="option-dot"></div><span>${opt}</span>`;
+    if(!isRevealed){
+      d.onclick=()=>{state[currentQ].selected=i;renderQuestion();renderGrid();updateStatus();};
+    } else {
+      d.style.cursor='default';d.onclick=null;
+    }
+    c.appendChild(d);
+  });
+  let expDiv = document.getElementById('instantExplanation');
+  if(!expDiv){
+    expDiv=document.createElement('div');expDiv.id='instantExplanation';
+    expDiv.style.cssText='margin-top:16px;padding:16px 20px;border-radius:12px;border-left:4px solid #2563eb;background:#dbeafe;color:#1e3a5f;font-size:14px;line-height:1.7;font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.06);';
+    c.parentNode.insertBefore(expDiv,c.nextSibling);
+  }
+  if(isRevealed){
+    const isCorrect=s.selected===q.ans;
+    const statusIcon=isCorrect?'✓':'✗';
+    const statusColor=isCorrect?'#16a34a':'#dc2626';
+    const statusBg=isCorrect?'#dcfce7':'#fee2e2';
+    const statusBorder=isCorrect?'#86efac':'#fca5a5';
+    const statusText=isCorrect?'CORRECT':'WRONG';
+    expDiv.style.display='block';expDiv.style.background=statusBg;expDiv.style.borderLeftColor=statusColor;expDiv.style.border=`1px solid ${statusBorder}`;
+    expDiv.innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:22px;font-weight:900;color:${statusColor};">${statusIcon}</span><span style="font-size:15px;font-weight:800;color:${statusColor};letter-spacing:0.5px;">${statusText}</span></div><div style="color:#334155;font-weight:600;"><strong style="color:#1d4ed8;">Explanation:</strong> ${q.exp}</div>`;
+  } else {
+    expDiv.style.display='none';
+  }
+  const reviewBtn=document.getElementById('reviewBtn');
+  if(s.review){reviewBtn.classList.add('active-review');reviewBtn.textContent='Marked for Review';}
+  else{reviewBtn.classList.remove('active-review');reviewBtn.textContent='Mark for Review';}
+  renderGrid();
+}
+
+function hutSVG(fc,num,active){
+  const lc=fc==='hut-unanswered'?'dark':'light';
+  const st=active?' stroke="#2563eb" stroke-width="2.5"':'';
+  return `<div class="q-icon-wrap" onclick="goTo(${num-1})"><svg class="q-svg" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="${fc}"${st}/></svg><span class="q-num-label ${lc}">${num}</span><div class="q-tooltip">Q${num}</div></div>`;
+}
+
+function renderGrid(){
+  document.getElementById('qGrid').innerHTML=state.map((s,i)=>{
+    let c;
+    if(i===currentQ)c='hut-active';
+    else if(s.selected!==null&&s.review)c='hut-rev-ans';
+    else if(s.review)c='hut-review';
+    else if(s.selected!==null)c='hut-answered';
+    else c='hut-unanswered';
+    return hutSVG(c,i+1,i===currentQ);
+  }).join('');
+}
+
+function updateStatus(){
+  document.getElementById('answeredCount').textContent=state.filter(s=>s.selected!==null).length+' answered';
+  document.getElementById('reviewCount').textContent=state.filter(s=>s.review).length+' review';
+}
+
+function clearResponse(){state[currentQ].selected=null;renderQuestion();renderGrid();updateStatus();}
+function markReview(){state[currentQ].review=!state[currentQ].review;renderQuestion();renderGrid();updateStatus();}
+function goTo(idx){if(idx<0||idx>=questions.length)return;currentQ=idx;renderQuestion();updateStatus();}
+
+function submitQuiz(){
+  const unanswered=state.filter(s=>s.selected===null).length;
+  if(unanswered>0&&!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`))return;
+  showResults();
+}
+
+function showResults(){
+  let correct=0,wrong=0,skipped=0;
+  resultData=questions.map((q,i)=>{
+    const sel=state[i].selected;
+    let status;
+    if(sel===null){skipped++;status='skip';}
+    else if(sel===q.ans){correct++;status='correct';}
+    else{wrong++;status='wrong';}
+    return{q,sel,status};
+  });
+  const pct=Math.round((correct/questions.length)*100);
+  document.getElementById('scoreBig').textContent=`${correct}/${questions.length}`;
+  document.getElementById('scorePct').textContent=`${pct}% Score`;
+  const passBadge=document.getElementById('passBadge');
+  if(pct>=75){passBadge.textContent='PASS';passBadge.style.background='rgba(22,163,74,0.3)';passBadge.style.color='#dcfce7';}
+  else if(pct>=60){passBadge.textContent='NEEDS IMPROVEMENT';passBadge.style.background='rgba(234,88,12,0.3)';passBadge.style.color='#ffedd5';}
+  else{passBadge.textContent='BELOW PASS MARK';passBadge.style.background='rgba(220,38,38,0.3)';passBadge.style.color='#fee2e2';}
+  document.getElementById('statCorrect').textContent=correct;
+  document.getElementById('statWrong').textContent=wrong;
+  document.getElementById('statSkipped').textContent=skipped;
+  renderResultList();
+  document.getElementById('quizScreen').style.display='none';
+  document.getElementById('resultScreen').style.display='flex';
+  document.getElementById('resultScreen').style.flexDirection='column';
+  window.scrollTo(0,0);
+}
+
+function renderResultList(){
+  const list=document.getElementById('resultList');
+  const filtered=resultData.filter(d=>currentFilter==='all'||d.status===currentFilter);
+  if(filtered.length===0){list.innerHTML='<p style="text-align:center;color:#888;padding:30px;">No questions in this category.</p>';return;}
+  list.innerHTML=filtered.map(d=>{
+    const origIdx=resultData.indexOf(d);
+    const{q,sel,status}=d;
+    const cardCls=status==='correct'?'correct-card':status==='wrong'?'wrong-card':'skip-card';
+    const badge=status==='correct'?'<span class="rc-badge badge-correct">Correct</span>':status==='wrong'?'<span class="rc-badge badge-wrong">Wrong</span>':'<span class="rc-badge badge-skip">Skipped</span>';
+    const optsHtml=q.opts.map((opt,oi)=>{
+      let cls='rc-opt',icon='';
+      if(oi===q.ans){cls+=' opt-correct';icon='<span class="opt-icon">&#10004;</span>';}
+      else if(oi===sel&&sel!==q.ans){cls+=' opt-wrong';icon='<span class="opt-icon">&#10008;</span>';}
+      return`<div class="${cls}">${icon}<span>${opt}</span></div>`;
+    }).join('');
+    return`<div class="result-card ${cardCls}"><div class="rc-header"><span class="rc-qnum">Q${origIdx+1}</span>${badge}</div><div class="rc-question">${q.q}</div><div class="rc-opts">${optsHtml}</div><div class="rc-explanation"><strong>Explanation:</strong> ${q.exp}</div></div>`;
+  }).join('');
+}
+
+function applyFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.className='filter-btn');
+  btn.className=`filter-btn active-${f}`;
+  renderResultList();
+}
+
+function retakeQuiz(){
+  state.forEach(s=>{s.selected=null;s.review=false;});
+  currentQ=0;currentFilter='all';
+  document.getElementById('resultScreen').style.display='none';
+  document.getElementById('quizScreen').style.display='flex';
+  document.querySelectorAll('.filter-btn').forEach((b,i)=>{b.className='filter-btn'+(i===0?' active-all':'');});
+  renderQuestion();updateStatus();
+}
+
+document.addEventListener('keydown',(e)=>{
+  if(document.getElementById('quizScreen').style.display==='none')return;
+  if(e.key==='ArrowRight')goTo(currentQ+1);
+  if(e.key==='ArrowLeft')goTo(currentQ-1);
+  if(e.key>='1'&&e.key<='4'){
+    const idx=parseInt(e.key)-1;
+    if(idx<questions[currentQ].opts.length){state[currentQ].selected=idx;renderQuestion();renderGrid();updateStatus();}
+  }
+});
+
+renderQuestion();
+updateStatus();
+</script>
+</body>
+</html>

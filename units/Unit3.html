@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Network and Web Security – Unit 3 Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; flex-direction: column; }
+
+  .top-bar { background: #29B6F6; color: white; text-align: center; padding: 11px 28px; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,0.15); flex-shrink: 0; }
+  .tape-fold { position: absolute; top: 0; bottom: 0; width: 22px; background: #0288D1; opacity: 0.75; }
+  .tape-fold.left { left: 0; } .tape-fold.right { right: 0; }
+  .top-bar h1 { font-size: 18px; font-weight: 800; letter-spacing: 0.6px; text-shadow: 0 1px 2px rgba(0,0,0,0.18); }
+  .top-bar p  { font-size: 12px; opacity: 0.92; margin-top: 2px; font-weight: 500; }
+
+  .main-layout { display: flex; flex: 1; height: calc(100vh - 66px); }
+  .question-area { flex: 1; padding: 24px 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+  .q-header { display: flex; justify-content: space-between; align-items: center; }
+  .q-num { font-size: 13px; color: #1a6bbf; font-weight: 700; background: #ddeeff; padding: 4px 14px; border-radius: 20px; border: 1px solid #aacfee; }
+  .q-marks { font-size: 13px; color: #1a7a3c; font-weight: 700; background: #e8f5e9; padding: 4px 14px; border-radius: 20px; border: 1px solid #a5d6a7; }
+  .q-text { font-size: 15.5px; color: #1a1a2e; font-weight: 500; line-height: 1.65; background: white; padding: 20px 22px; border-radius: 12px; border: 1px solid #d0d8ec; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option { display: flex; align-items: center; gap: 14px; padding: 12px 18px; border-radius: 10px; border: 1.5px solid #d0d8e8; background: white; cursor: pointer; transition: all 0.18s ease; font-size: 14px; color: #2c2c2c; }
+  .option:hover { border-color: #29B6F6; background: #f0faff; }
+  .option.selected { border-color: #0288D1; background: #e1f5fe; font-weight: 600; }
+  .option-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #b0bec5; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.18s; background: white; }
+  .option.selected .option-dot { border-color: #0288D1; background: #0288D1; }
+  .option.selected .option-dot::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: white; }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
+  .btn { padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-clear { background: white; color: #555; border: 1.5px solid #ccc; } .btn-clear:hover { background: #f0f0f0; }
+  .btn-review { background: #7B1FA2; color: white; } .btn-review:hover { background: #6a1b9a; }
+  .btn-prev { background: white; color: #0288D1; border: 1.5px solid #0288D1; } .btn-prev:hover { background: #e1f5fe; }
+  .btn-next { background: #29B6F6; color: white; margin-left: auto; } .btn-next:hover { background: #0288D1; }
+
+  .sidebar { width: 206px; background: white; border-left: 1px solid #dde3ed; display: flex; flex-direction: column; flex-shrink: 0; }
+  .student-name-box { background: #29B6F6; color: white; padding: 10px 12px; text-align: center; border-bottom: 2px solid #0288D1; }
+  .student-name-box .s-label { font-size: 10px; opacity: 0.88; text-transform: uppercase; letter-spacing: 0.6px; }
+  .student-name-box .s-name { font-size: 13px; font-weight: 800; margin-top: 3px; line-height: 1.35; }
+  .sidebar-legend { padding: 10px 12px 8px; border-bottom: 1px solid #eee; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #555; margin-bottom: 5px; }
+  .legend-shape { width: 22px; height: 22px; flex-shrink: 0; }
+  .hut-answered { fill: #2e7d32; } .hut-unanswered { fill: white; stroke: #b0bec5; stroke-width: 1.5; }
+  .hut-review { fill: #7B1FA2; } .hut-rev-ans { fill: #e65100; } .hut-active { fill: #29B6F6; }
+  .sidebar-section-title { font-size: 11px; font-weight: 700; color: #888; padding: 8px 12px 5px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .q-grid { padding: 4px 10px 10px; display: flex; flex-wrap: wrap; gap: 5px; overflow-y: auto; flex: 1; }
+  .q-icon-wrap { position: relative; cursor: pointer; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; transition: transform 0.12s; }
+  .q-icon-wrap:hover { transform: scale(1.1); } .q-icon-wrap:hover .q-tooltip { opacity: 1; }
+  .q-svg { width: 30px; height: 30px; }
+  .q-num-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%); font-size: 9px; font-weight: 800; pointer-events: none; z-index: 2; line-height: 1; }
+  .q-num-label.light { color: white; } .q-num-label.dark { color: #444; }
+  .q-tooltip { position: absolute; bottom: 115%; left: 50%; transform: translateX(-50%); background: #333; color: white; font-size: 10px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; opacity: 0; transition: opacity 0.15s; pointer-events: none; z-index: 99; }
+  .status-bar { padding: 6px 12px; background: #f8f9fc; border-top: 1px solid #eee; font-size: 11px; color: #666; display: flex; justify-content: space-between; }
+  .submit-btn { margin: 10px 12px 14px; padding: 10px; background: #29B6F6; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; transition: background 0.15s; }
+  .submit-btn:hover { background: #0288D1; }
+
+  /* RESULT SCREEN */
+  #resultScreen { display: none; flex-direction: column; flex: 1; overflow-y: auto; background: #f0f4f8; }
+  .score-banner { background: #29B6F6; color: white; padding: 30px 32px; text-align: center; position: relative; }
+  .score-banner .tape-fold { background: #0288D1; }
+  .score-banner h2 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+  .score-big { font-size: 56px; font-weight: 900; line-height: 1; }
+  .score-sub { font-size: 15px; opacity: 0.92; margin-top: 6px; font-weight: 600; }
+
+  .score-stats { display: flex; gap: 14px; padding: 18px 28px; background: white; border-bottom: 1px solid #dde3ed; flex-wrap: wrap; }
+  .stat-box { flex: 1; min-width: 90px; text-align: center; padding: 14px 8px; border-radius: 12px; }
+  .stat-box.correct  { background: #e8f5e9; }
+  .stat-box.wrong    { background: #fdecea; }
+  .stat-box.skipped  { background: #f3e5f5; }
+  .stat-box .s-val   { font-size: 30px; font-weight: 900; }
+  .stat-box.correct .s-val  { color: #2e7d32; }
+  .stat-box.wrong .s-val    { color: #c62828; }
+  .stat-box.skipped .s-val  { color: #7B1FA2; }
+  .stat-box .s-lbl   { font-size: 12px; color: #666; font-weight: 700; margin-top: 4px; }
+
+  .filter-bar { display: flex; gap: 8px; padding: 14px 28px; background: white; border-bottom: 1px solid #eee; flex-wrap: wrap; }
+  .filter-btn { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1.5px solid #ccc; background: white; color: #555; transition: all 0.15s; }
+  .filter-btn.active-all     { background: #29B6F6; color: white; border-color: #29B6F6; }
+  .filter-btn.active-correct { background: #2e7d32; color: white; border-color: #2e7d32; }
+  .filter-btn.active-wrong   { background: #c62828; color: white; border-color: #c62828; }
+  .filter-btn.active-skip    { background: #7B1FA2; color: white; border-color: #7B1FA2; }
+
+  .result-list { padding: 20px 28px; display: flex; flex-direction: column; gap: 16px; }
+  .result-card { background: white; border-radius: 12px; padding: 18px 20px; border-left: 5px solid #ccc; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .result-card.correct-card { border-left-color: #2e7d32; }
+  .result-card.wrong-card   { border-left-color: #c62828; }
+  .result-card.skip-card    { border-left-color: #9e9e9e; }
+  .rc-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .rc-qnum { font-size: 11px; font-weight: 700; color: #888; white-space: nowrap; }
+  .rc-badge { font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .badge-correct { background: #e8f5e9; color: #2e7d32; }
+  .badge-wrong   { background: #fdecea; color: #c62828; }
+  .badge-skip    { background: #f5f5f5; color: #757575; }
+  .rc-question { font-size: 14px; font-weight: 600; color: #1a1a2e; line-height: 1.5; margin-bottom: 12px; }
+  .rc-opts { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .rc-opt { font-size: 13px; padding: 7px 12px; border-radius: 8px; border: 1.5px solid #eee; color: #555; display: flex; align-items: center; gap: 8px; }
+  .rc-opt.opt-correct { background: #e8f5e9; border-color: #a5d6a7; color: #1b5e20; font-weight: 700; }
+  .rc-opt.opt-wrong   { background: #fdecea; border-color: #ef9a9a; color: #b71c1c; font-weight: 600; text-decoration: line-through; }
+  .rc-opt .opt-icon   { font-size: 14px; flex-shrink: 0; }
+  .rc-explanation { background: #f0f7ff; border: 1px solid #b3d4f5; border-radius: 8px; padding: 11px 14px; font-size: 13px; color: #1a3a5c; line-height: 1.65; }
+  .rc-explanation strong { color: #0288D1; }
+
+  .retake-bar { padding: 18px 28px; background: white; border-top: 1px solid #dde3ed; display: flex; gap: 12px; justify-content: center; flex-shrink: 0; }
+  .retake-btn { padding: 11px 30px; border-radius: 8px; font-size: 14px; font-weight: 800; cursor: pointer; border: none; transition: background 0.15s; }
+  .retake-btn.primary { background: #29B6F6; color: white; } .retake-btn.primary:hover { background: #0288D1; }
+  .retake-btn.secondary { background: white; color: #0288D1; border: 1.5px solid #0288D1; } .retake-btn.secondary:hover { background: #e1f5fe; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="tape-fold left"></div>
+  <div class="tape-fold right"></div>
+  <h1>Network and Web Security – Unit 3</h1>
+  <p>Course Code: 31242204 | Firewalls · IDS/IPS · VPN · Switching · Wireless · Email Security · NAC · RADIUS</p>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="quizScreen" style="display:flex;flex:1;">
+  <div class="main-layout">
+    <div class="question-area">
+      <div class="q-header">
+        <span class="q-num" id="qNumLabel">Question 1 of 60</span>
+        <span class="q-marks">Marks: 1</span>
+      </div>
+      <div class="q-text" id="questionText">Loading...</div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="btn-row">
+        <button class="btn btn-clear"  onclick="clearResponse()">Clear Response</button>
+        <button class="btn btn-review" onclick="markReview()">Mark for Review</button>
+        <button class="btn btn-prev"   onclick="goTo(currentQ-1)">&#8592; Previous</button>
+        <button class="btn btn-next"   onclick="goTo(currentQ+1)">Next &#8594;</button>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="student-name-box">
+        <div class="s-label">Student</div>
+        <div class="s-name">Umesh Kumar Mishra</div>
+      </div>
+      <div class="sidebar-legend">
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-answered"/></svg>Answered</div>
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-unanswered"/></svg>Not Answered</div>
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-review"/></svg>Mark for Review</div>
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-rev-ans"/></svg>Answered + Review</div>
+      </div>
+      <div class="sidebar-section-title">Questions</div>
+      <div class="q-grid" id="qGrid"></div>
+      <div class="status-bar"><span id="answeredCount">0 answered</span><span id="reviewCount">0 review</span></div>
+      <button class="submit-btn" onclick="submitQuiz()">Submit Quiz &#10003;</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="resultScreen">
+  <div class="score-banner">
+    <div class="tape-fold left"></div>
+    <div class="tape-fold right"></div>
+    <h2>Quiz Results &mdash; Umesh Kumar Mishra</h2>
+    <div class="score-big" id="scoreBig">0/60</div>
+    <div class="score-sub" id="scorePct">0% Score</div>
+  </div>
+  <div class="score-stats">
+    <div class="stat-box correct"><div class="s-val" id="statCorrect">0</div><div class="s-lbl">&#10004; Correct</div></div>
+    <div class="stat-box wrong"><div class="s-val" id="statWrong">0</div><div class="s-lbl">&#10008; Wrong</div></div>
+    <div class="stat-box skipped"><div class="s-val" id="statSkipped">0</div><div class="s-lbl">&#8212; Skipped</div></div>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn active-all" onclick="applyFilter('all',this)">All Questions</button>
+    <button class="filter-btn" onclick="applyFilter('correct',this)">&#10004; Correct Only</button>
+    <button class="filter-btn" onclick="applyFilter('wrong',this)">&#10008; Wrong Only</button>
+    <button class="filter-btn" onclick="applyFilter('skip',this)">&#8212; Skipped Only</button>
+  </div>
+  <div class="result-list" id="resultList"></div>
+  <div class="retake-bar">
+    <button class="retake-btn secondary" onclick="retakeQuiz()">Retake Quiz</button>
+    <button class="retake-btn primary" onclick="window.print()">Print Results</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  // ── FIREWALLS ──────────────────────────────────────────────────────────────
+  {q:"Which firewall type examines each packet in isolation based on static rules without knowing whether it belongs to an existing session?",opts:["Stateful Inspection Firewall","Proxy Firewall","Packet Filtering Firewall","Next-Generation Firewall"],ans:2,exp:"Packet Filtering Firewalls inspect individual packets using static rules (source/destination IP, port, protocol) in isolation. They are stateless — they have no memory of previous packets, so they cannot verify whether a packet belongs to a legitimate, established session. This makes them vulnerable to IP spoofing attacks."},
+  {q:"A packet filtering firewall operates primarily at which network layer?",opts:["Application Layer (Layer 7)","Transport Layer (Layer 4)","Network Layer (Layer 3)","Data Link Layer (Layer 2)"],ans:2,exp:"Packet filtering firewalls operate at the Network Layer (Layer 3) of the OSI model. They inspect IP headers — source/destination IP addresses — and also check transport-layer port numbers and protocol fields. This low-level inspection is what makes them very fast but also limited in the depth of their security analysis."},
+  {q:"What key data structure does a Stateful Inspection Firewall maintain to track network connections?",opts:["Routing table","CAM table","State table","ARP cache"],ans:2,exp:"A Stateful Inspection Firewall maintains a 'state table' that records the state of all active network connections — including handshakes, established sessions, and closed connections. It only allows incoming traffic that corresponds to a previously authorized outgoing request, making it significantly more secure than basic packet filtering."},
+  {q:"Which firewall type provides the HIGHEST level of security by inspecting the full application-layer payload?",opts:["Packet Filtering Firewall","Stateful Inspection Firewall","Proxy Firewall (Application-Level Gateway)","MAC Address Filter"],ans:2,exp:"Proxy Firewalls (Application-Level Gateways) operate at Layer 7 and inspect the complete data payload of each connection. They act as intermediaries — fully terminating and re-establishing connections on both sides — and can hide internal network addresses via NAT. This deep inspection gives them the highest security, but also makes them slower than other firewall types."},
+  {q:"Which firewall type acts as an intermediary and terminates connections on BOTH sides?",opts:["Stateful Inspection Firewall","Packet Filtering Firewall","Proxy Firewall","Circuit-Level Gateway"],ans:2,exp:"A Proxy Firewall (Application-Level Gateway) sits between the client and the destination server, completely terminating the connection from the client and establishing a new, separate connection to the server. This 'break and inspect' approach lets it fully analyse application data but introduces additional latency compared to pass-through firewalls."},
+  {q:"A Stateful Inspection Firewall is BEST suited for which use case?",opts:["Deep inspection of HTTP request bodies","General, efficient network security monitoring","Acting as an email content filter","Physical port access control"],ans:1,exp:"Stateful Inspection Firewalls are ideal for general, efficient network security monitoring. By tracking connection states rather than re-applying static rules to every packet, they strike a balance between security and performance — blocking unsolicited incoming traffic while allowing legitimate sessions to flow without the overhead of full application-layer inspection."},
+  {q:"Comparing the three main firewall types, which has the LOWEST inspection speed due to deep analysis?",opts:["Packet Filtering Firewall","Stateful Inspection Firewall","Proxy Firewall","All operate at the same speed"],ans:2,exp:"Proxy Firewalls have the lowest throughput speed because they perform deep inspection of the full application-layer payload for every connection. This deep analysis — combined with the overhead of terminating and re-establishing two separate connections — is computationally expensive compared to the header-only checks of packet filters or state-tracking of stateful firewalls."},
+
+  // ── IDS / IPS ──────────────────────────────────────────────────────────────
+  {q:"What is the fundamental difference between an IDS and an IPS in terms of response to threats?",opts:["IDS blocks threats; IPS only alerts","IDS passively monitors and alerts; IPS actively blocks threats in real-time","IDS is hardware-based; IPS is software-based","IDS uses signatures; IPS uses anomaly detection only"],ans:1,exp:"An Intrusion Detection System (IDS) is passive — it monitors a copy of network traffic, generates alerts, and requires manual intervention. An Intrusion Prevention System (IPS) is active — it sits inline in the traffic flow and can automatically block, drop, or reset sessions in real-time when a threat is detected, without waiting for human intervention."},
+  {q:"An IDS is placed 'out-of-band', meaning it:",opts:["Is installed inside the firewall only","Analyses a copy of traffic without being in the direct traffic path","Blocks all traffic until analysed","Requires physical hardware installation only"],ans:1,exp:"An out-of-band IDS receives a copy (mirror) of network traffic — for example via a SPAN port on a switch — rather than sitting directly in the traffic path. This means it cannot block traffic in real-time, but it also means a malfunction in the IDS will not disrupt network connectivity. An IPS, by contrast, is in-line and can drop packets directly."},
+  {q:"Which detection method identifies threats by comparing traffic against a database of known malicious 'fingerprints'?",opts:["Anomaly-based detection","Policy-based detection","Signature-based detection","Heuristic-based detection"],ans:2,exp:"Signature-based detection works like an antivirus — it compares incoming traffic against a database of known attack patterns (signatures) such as specific byte sequences, file hashes, or SQL injection strings. It is highly accurate for known threats but completely blind to new, zero-day attacks for which no signature yet exists."},
+  {q:"What is the CRITICAL limitation of signature-based detection?",opts:["It generates too many false positives","It cannot detect zero-day attacks for which no signature exists","It is too slow for real-time analysis","It only works on encrypted traffic"],ans:1,exp:"Signature-based systems can only detect threats that are already in their database. A zero-day attack — one that has never been seen before — has no corresponding signature, so it passes through undetected. This is why signature databases must be updated frequently (often daily) and why signatures are usually combined with anomaly-based detection for comprehensive coverage."},
+  {q:"Anomaly-based detection identifies threats by:",opts:["Matching traffic against a known attack database","Comparing real-time activity against an established baseline of 'normal' behaviour","Enforcing administrator-defined policy rules","Checking packet headers against an IP whitelist"],ans:1,exp:"Anomaly-based (behaviour-based) detection first establishes a baseline of normal network activity during a training phase. In the detection phase, it continuously compares live traffic against this baseline and raises alerts for significant deviations — such as sudden data spikes, logins from unusual locations, or abnormal port usage — which may signal novel or zero-day attacks."},
+  {q:"Which type of anomaly describes a single data event completely unlike the norm — such as a $10,000 credit card transaction on an account that averages $50?",opts:["Contextual Anomaly","Collective Anomaly","Point Anomaly","Structural Anomaly"],ans:2,exp:"A Point Anomaly is a single data instance that is dramatically different from all other observations. In network security, this might be a single huge data transfer from a normally low-traffic server. In fraud detection, it's the classic example of one extremely high transaction on a low-spending account. It is the simplest and most obvious anomaly type."},
+  {q:"Which anomaly type involves activity that is normal in one context but suspicious in another — like heavy server traffic at 3 AM on a weeknight?",opts:["Point Anomaly","Collective Anomaly","Contextual Anomaly","Signature Anomaly"],ans:2,exp:"Contextual Anomalies are data points that appear normal when viewed in isolation but become suspicious when evaluated against their context (time, location, user role). Legitimate high server load at noon is normal; the same load at 3 AM on a Tuesday may indicate unauthorized access or data exfiltration that warrants investigation."},
+  {q:"Policy-based detection differs from signature and anomaly detection because it:",opts:["Detects zero-day attacks automatically","Uses machine learning to learn patterns","Enforces administrator-defined specific rules governing permitted network behaviour","Compares traffic to a vendor-provided threat intelligence database"],ans:2,exp:"Policy-based (rule-based) detection enforces custom rules written by administrators to match the organization's specific security policies — for example, blocking .exe downloads in the finance department, preventing root logins, or flagging traffic from high-risk countries. Unlike signatures or baselines, these rules are manually configured and don't adapt automatically."},
+  {q:"Which IDS/IPS type monitors traffic for an ENTIRE network from strategic points, typically placed behind the firewall?",opts:["Host-based (HIDS/HIPS)","Wireless IPS (WIPS)","Network Behaviour Analysis (NBA)","Network-based (NIDS/NIPS)"],ans:3,exp:"Network-based NIDS/NIPS systems are deployed at strategic points in the network — usually behind the perimeter firewall — to monitor all traffic flowing through that segment. They provide broad visibility across many devices simultaneously but cannot see encrypted traffic on individual endpoints that isn't routed through their monitoring point."},
+  {q:"A Host-based IDS (HIDS) is installed:",opts:["On a network switch to monitor all ports","On individual devices like servers or laptops to monitor internal activity","On the perimeter firewall only","On a dedicated hardware appliance between two networks"],ans:1,exp:"HIDS is installed directly on an individual endpoint (server, workstation, or laptop). It monitors local system logs, file integrity, running processes, and registry changes specific to that device. This gives deep visibility into what is happening on the host itself — including insider threats and malware running with elevated privileges — but requires deployment on each device individually."},
+  {q:"What is a key ADVANTAGE of implementing IPS/IDS for regulatory compliance?",opts:["It replaces the need for encryption","It meets requirements of standards such as PCI DSS, HIPAA, and GDPR","It automatically patches software vulnerabilities","It prevents all forms of social engineering"],ans:1,exp:"Many regulatory frameworks — including PCI DSS (payment card security), HIPAA (healthcare data), and GDPR (European data protection) — explicitly require or strongly recommend intrusion detection and prevention capabilities. IDS/IPS deployment demonstrates due diligence in monitoring for unauthorized access, which is essential for passing security audits and avoiding regulatory fines."},
+
+  // ── VPN: IPSec & SSL ───────────────────────────────────────────────────────
+  {q:"What primary technique does an IPsec VPN use to protect data in transit?",opts:["Hashing only, with no encryption","Tunnelling: encapsulating and encrypting data packets before sending over the internet","DNS masking to hide destination addresses","Digital certificates only, without encryption"],ans:1,exp:"IPsec VPNs use tunnelling — the original data packet is encapsulated inside a new IPsec packet, which is then encrypted using a strong cipher before being sent across the public internet. At the receiving VPN gateway, the outer packet is decrypted and the original packet is extracted and forwarded. This hides both the content and the original source/destination."},
+  {q:"Which IPsec protocol provides CONFIDENTIALITY, data integrity, and authentication for IP packets?",opts:["AH (Authentication Header)","ESP (Encapsulating Security Payload)","IKE (Internet Key Exchange)","TLS (Transport Layer Security)"],ans:1,exp:"ESP (Encapsulating Security Payload) is IP protocol number 50 and is the primary IPsec protocol used in VPNs. It encrypts the packet payload for confidentiality, provides data integrity verification, and supports authentication. Unlike AH (which only authenticates), ESP both encrypts AND authenticates, making it the preferred protocol for VPN traffic protection."},
+  {q:"By default, IPsec VPN uses which UDP ports?",opts:["UDP/80 and UDP/443","UDP/500 and UDP/4500","TCP/1194 and TCP/443","UDP/1701 and UDP/4500"],ans:1,exp:"IPsec uses UDP port 500 for IKE (Internet Key Exchange) — the protocol used to negotiate security associations and exchange cryptographic keys. When NAT traversal is needed (devices behind a NAT router), IPsec switches to UDP port 4500. These ports must be open on firewalls for IPsec VPN connections to succeed."},
+  {q:"At which OSI layer does IPsec VPN operate?",opts:["Application Layer (Layer 7)","Session Layer (Layer 5)","Transport Layer (Layer 4)","Network Layer (Layer 3)"],ans:3,exp:"IPsec operates at the Network Layer (Layer 3) of the OSI model. This means it encrypts all IP traffic at the packet level, regardless of the application generating it. This makes IPsec ideal for site-to-site VPNs where entire networks need to communicate securely, as all protocols and applications are automatically protected."},
+  {q:"An SSL VPN is accessed through:",opts:["A dedicated hardware VPN client that must be installed","A standard web browser without additional client software","A Kerberos ticket from the domain controller","A physical smart card reader at each workstation"],ans:1,exp:"SSL VPNs are web-based and can be accessed through any standard internet browser — on any OS — without requiring the installation of dedicated VPN client software. The browser establishes a TLS/SSL encrypted connection to the SSL VPN gateway. This makes SSL VPNs far easier to deploy for remote workers and contractors compared to IPsec VPNs."},
+  {q:"SSL VPNs operate at which OSI layer?",opts:["Network Layer","Data Link Layer","Application Layer","Physical Layer"],ans:2,exp:"SSL VPNs operate at the Application Layer (Layer 7). Because they use TLS (which runs within the application layer in the browser), they specifically encrypt web sessions and application-specific traffic rather than all network traffic. This makes them ideal for providing secure remote access to specific web-based applications and services."},
+  {q:"What encryption protocol do modern SSL VPNs rely upon to secure the browser-to-gateway connection?",opts:["IPsec ESP","WPA2","TLS (Transport Layer Security)","TKIP"],ans:2,exp:"Despite being called 'SSL VPNs', modern implementations use TLS (the successor to SSL) rather than the deprecated SSL protocol. TLS encrypts the communication channel between the user's browser and the SSL VPN gateway. A key advantage is that security measures are automatically updated when the browser or OS is upgraded, without manual protocol management by users."},
+  {q:"For site-to-site corporate network connections requiring full network access, which VPN type is typically preferred?",opts:["SSL VPN","OpenVPN","IPsec VPN","PPTP VPN"],ans:2,exp:"IPsec VPN is preferred for site-to-site connections (e.g., connecting a branch office to headquarters) because it operates at the network layer and encrypts ALL traffic between the two networks, not just web sessions. It provides full network access with strong security and is broadly supported by routers, switches, and network equipment from all major vendors."},
+  {q:"What is a KEY advantage of SSL VPN over IPsec VPN for remote workers?",opts:["SSL VPN provides stronger encryption","SSL VPN requires no client software — accessed via browser — making deployment simpler","SSL VPN encrypts all network traffic at the IP level","SSL VPN is faster because it skips authentication"],ans:1,exp:"The main advantage of SSL VPN for remote access is ease of deployment. Workers can connect from any device with a web browser — including personal laptops, tablets, or public computers — without IT needing to install and configure VPN client software on each device. This dramatically reduces deployment complexity and support overhead for remote workforce scenarios."},
+
+  // ── SECURE SWITCHING (LAYER 2) ─────────────────────────────────────────────
+  {q:"Switches operate at which OSI layer, making them vulnerable to Layer 2 attacks?",opts:["Network Layer (Layer 3)","Application Layer (Layer 7)","Data Link Layer (Layer 2)","Physical Layer (Layer 1)"],ans:2,exp:"Switches operate at the Data Link Layer (Layer 2), working with MAC addresses to forward frames within a network segment. This layer is vulnerable to attacks such as MAC address spoofing, CAM table overflow (MAC flooding), ARP poisoning, and rogue DHCP server attacks. Securing Layer 2 is critical because a successful attack here can bypass all higher-level security controls."},
+  {q:"What does Port Security on a switch accomplish?",opts:["Encrypts all traffic passing through the port","Limits the number of allowed MAC addresses per port and can shut down a port if an unknown device connects","Monitors the port for intrusion attempts and sends SNMP alerts","Requires 802.1X certificate authentication for each device"],ans:1,exp:"Port Security limits the number of MAC addresses allowed on each physical switch port. When an unauthorized device (with an unknown MAC address) plugs in, the port can respond by generating an alert, restricting the port, or automatically shutting it down entirely. This prevents attackers from connecting rogue devices to physical network ports in an office."},
+  {q:"DHCP Snooping on a switch is designed to prevent:",opts:["ARP poisoning attacks","MAC address table overflow attacks","Rogue DHCP servers from distributing fake IP addresses to clients","Unauthorized VLAN hopping between segments"],ans:2,exp:"DHCP Snooping prevents rogue DHCP server attacks, where an attacker runs their own DHCP server on the network and hands out fake gateway IP addresses to clients — redirecting all their traffic through the attacker. The switch builds a table of trusted DHCP server ports and drops any DHCP responses coming from untrusted ports, allowing only legitimate DHCP servers to operate."},
+  {q:"Dynamic ARP Inspection (DAI) protects against which attack?",opts:["MAC flooding / CAM table overflow","ARP poisoning, where an attacker tricks devices into sending data to the wrong MAC address","VLAN hopping between segregated network segments","Rogue wireless access point injection"],ans:1,exp:"ARP poisoning (ARP spoofing) is a man-in-the-middle attack where an attacker sends fake ARP replies to associate their MAC address with a legitimate IP address on the network. Dynamic ARP Inspection validates ARP packets against the DHCP snooping binding table and drops invalid or unsolicited ARP replies, preventing attackers from redirecting traffic."},
+  {q:"VLAN Segmentation provides security by:",opts:["Encrypting all inter-VLAN traffic automatically","Logically isolating network segments so a compromise in one VLAN doesn't automatically grant access to others","Filtering malicious content at the application layer","Authenticating all users before granting switch port access"],ans:1,exp:"VLANs (Virtual LANs) logically separate a physical network into isolated segments. For example, a 'Guest Wi-Fi' VLAN and a 'Finance Server' VLAN are isolated from each other on the same physical switch. An attacker who compromises the guest network cannot automatically reach the finance servers — they would need to defeat inter-VLAN routing controls as well, limiting lateral movement."},
+
+  // ── SECURE ROUTING (LAYER 3) ───────────────────────────────────────────────
+  {q:"What is 'Blackholing' in the context of router attacks?",opts:["An attacker uses a router to flood the network with broadcast traffic","A compromised router drops all traffic destined for a specific network, causing a denial of service","A router advertises fake routes to redirect traffic through the attacker's server","A router blocks all ICMP packets, hiding itself from network discovery"],ans:1,exp:"Blackholing occurs when a compromised or misconfigured router drops (discards) traffic destined for certain networks rather than forwarding it. This effectively makes those network resources unreachable — a form of denial of service. Attackers can inject blackhole routes into routing protocols like BGP to selectively disrupt connectivity for targeted networks or services."},
+  {q:"Control Plane Policing (CoPP) is used to:",opts:["Encrypt routing protocol updates between routers","Protect the router's CPU from being overwhelmed by a flood of traffic designed to crash the device","Authenticate OSPF routing updates with digital signatures","Block traffic from specific source IP addresses using ACLs"],ans:1,exp:"CoPP protects the router's control plane (its CPU and management processes) from resource exhaustion attacks. Attackers sometimes flood routers with crafted packets — such as ICMP, OSPF hellos, or bogus management traffic — to consume CPU resources and crash the device. CoPP applies rate-limiting policies to traffic destined for the router's CPU, keeping it available for legitimate routing functions."},
+  {q:"Route Authentication in routing protocols like OSPF or BGP is important because it prevents:",opts:["Denial of service attacks targeting the router's management interface","Attackers from injecting fake routing updates that redirect traffic through malicious servers","CAM table overflow attacks on the router","MAC address spoofing on Layer 2 segments"],ans:1,exp:"Without route authentication, an attacker on the network could inject false routing updates into OSPF, EIGRP, or BGP, causing legitimate routers to add malicious routes to their tables. This redirects traffic through attacker-controlled servers (man-in-the-middle). Route authentication requires routing updates to be digitally signed or password-protected, so only trusted routers' updates are accepted."},
+  {q:"uRPF (Unicast Reverse Path Forwarding) is a technique used to combat:",opts:["ARP poisoning at Layer 2","IP spoofing, by verifying that the source IP of a packet makes sense for the interface it arrived on","CAM table overflow attacks on switches","BGP route injection attacks"],ans:1,exp:"uRPF fights IP spoofing by checking whether the source IP address of an arriving packet is reachable via the same interface that the packet arrived on. If a packet claims to come from 192.168.1.0/24 but arrives on an interface that has no route back to that network, it is dropped — exposing the spoofed source. This prevents attackers from forging source IP addresses to launch reflection or amplification attacks."},
+  {q:"Access Control Lists (ACLs) on routers function as:",opts:["A routing protocol that distributes network topology information","A basic internal firewall defining which IP addresses or protocols are allowed through the router","A mechanism for encrypting traffic between routers","A method of load-balancing traffic across multiple interfaces"],ans:1,exp:"Router ACLs are ordered lists of permit/deny rules applied to interfaces. They inspect source/destination IP addresses and protocols of packets passing through the router and either permit or deny them based on the rules. They act as a basic packet-filtering firewall embedded in the router, allowing security policy enforcement at the network boundary without a dedicated external firewall."},
+
+  // ── MANAGEMENT PLANE SECURITY ──────────────────────────────────────────────
+  {q:"Why should SSH be used instead of Telnet for remote router and switch management?",opts:["SSH supports more simultaneous connections than Telnet","Telnet transmits data including passwords in plain text, while SSH encrypts the entire management session","SSH is faster than Telnet because it uses UDP instead of TCP","Telnet requires a digital certificate which is expensive to obtain"],ans:1,exp:"Telnet sends all data — including usernames and passwords — as unencrypted plain text that can be captured by anyone with access to the network. SSH (Secure Shell) encrypts the entire management session, including credentials and all commands. In any secure network, Telnet should be completely disabled and only SSH should be permitted for remote device management."},
+  {q:"What does AAA stand for in network security, and what does it provide?",opts:["Authentication, Authorisation, Accounting — centrally tracking who logs in, what they changed, and when","Access, Availability, Accountability — the three pillars of uptime","Asymmetric, Adaptive, Auditing — for cryptographic key management","Advanced, Automated, Analysis — for IDS alert correlation"],ans:0,exp:"AAA stands for Authentication (verifying who you are), Authorisation (determining what you are allowed to do), and Accounting (logging what you actually did and when). In network infrastructure security, AAA is typically implemented via a central server (RADIUS or TACACS+) so that all login events, configuration changes, and commands on routers and switches are centrally logged and auditable."},
+  {q:"SNMPv3 is preferred over earlier SNMP versions for network monitoring because:",opts:["SNMPv3 uses a simpler community string model for authentication","SNMPv3 supports more MIB objects than older versions","SNMPv3 encrypts and authenticates monitoring data, while SNMPv1/v2c send community strings in plain text","SNMPv3 is the only version compatible with IPv6 networks"],ans:2,exp:"SNMPv1 and SNMPv2c authenticate devices using community strings sent in plain text — effectively an unencrypted password that anyone sniffing the network can capture. SNMPv3 introduces message integrity checks, authentication using MD5 or SHA, and payload encryption. This prevents attackers from intercepting SNMP traffic to gather network topology information or injecting false SNMP responses."},
+
+  // ── WIRELESS SECURITY ──────────────────────────────────────────────────────
+  {q:"WEP (Wired Equivalent Privacy) was introduced in 1997. What is its current security status?",opts:["Still recommended for home use due to simplicity","Secure enough for small office environments","Considered outdated but acceptable for legacy devices","Obsolete and highly insecure — can be cracked in minutes with modern tools"],ans:3,exp:"WEP used a static RC4 encryption key (64-bit or 128-bit) that never changed, had a critically flawed key-scheduling algorithm, and used a tiny 24-bit Initialization Vector (IV) that repeated too often. Modern tools like Aircrack-ng can crack WEP encryption in under 5 minutes by collecting enough packets. WEP should never be used — any device that only supports WEP should be replaced."},
+  {q:"What key improvement did WPA introduce over WEP?",opts:["AES encryption replacing RC4 entirely","TKIP (Temporal Key Integrity Protocol) which dynamically changes the encryption key for each data packet","SAE (Simultaneous Authentication of Equals) replacing the pre-shared key handshake","Mandatory certificate-based authentication"],ans:1,exp:"WPA introduced TKIP (Temporal Key Integrity Protocol) as a temporary fix for WEP's static key problem. TKIP generates a new unique encryption key for every packet — dramatically reducing the risk of key-stream reuse that made WEP crackable. However, TKIP itself still used RC4 and was later found to have vulnerabilities, leading to WPA2 with AES becoming the new standard."},
+  {q:"WPA2 uses which encryption algorithm, replacing the weaker RC4 used in WEP and WPA?",opts:["3DES (Triple Data Encryption Standard)","Blowfish","AES (Advanced Encryption Standard) with CCMP","ChaCha20-Poly1305"],ans:2,exp:"WPA2 replaced RC4 with AES (Advanced Encryption Standard) combined with CCMP (Counter Mode with Cipher Block Chaining Message Authentication Code Protocol). AES is a block cipher approved by NIST and widely considered unbreakable with correct key sizes. WPA2 with AES became the industry standard from 2004 and is still considered secure when properly patched against the KRACK vulnerability."},
+  {q:"Which vulnerability specifically affects WPA2, requiring patches to remain secure?",opts:["POODLE (Padding Oracle On Downgraded Legacy Encryption)","KRACK (Key Reinstallation Attack)","BEAST (Browser Exploit Against SSL/TLS)","Heartbleed (OpenSSL buffer over-read)"],ans:1,exp:"KRACK (Key Reinstallation Attack), discovered in 2017, exploits the WPA2 four-way handshake. An attacker within Wi-Fi range can force nonce reuse during the handshake, allowing them to potentially decrypt, replay, and forge packets. Patches from OS and device vendors address this, but unpatched older devices remain vulnerable. This limitation drove the development of WPA3."},
+  {q:"What new handshake mechanism did WPA3 introduce to replace the traditional pre-shared key (PSK) handshake?",opts:["EAP-TLS (Extensible Authentication Protocol - TLS)","TKIP (Temporal Key Integrity Protocol)","SAE (Simultaneous Authentication of Equals)","CHAP (Challenge Handshake Authentication Protocol)"],ans:2,exp:"WPA3 replaced the traditional PSK (Pre-Shared Key) four-way handshake with SAE (Simultaneous Authentication of Equals), also known as the 'Dragonfly' handshake. SAE provides mutual authentication — both the device and the access point authenticate each other — and is resistant to offline dictionary attacks because an attacker cannot collect enough information from the handshake alone to guess the password offline."},
+  {q:"WPA3 includes Forward Secrecy, which means:",opts:["All devices on the Wi-Fi network share the same session key","Even if the Wi-Fi password is compromised later, previously captured traffic cannot be decrypted retroactively","The password is encrypted before being sent during the handshake","AES keys are replaced every 60 seconds automatically"],ans:1,exp:"WPA3's Forward Secrecy ensures that a unique encryption key is generated for each session. Even if an attacker captures all Wi-Fi traffic and later obtains the network password, they cannot decrypt previously recorded sessions because those session keys were never stored and cannot be reconstructed. This is identical in concept to the Forward Secrecy in TLS 1.3."},
+  {q:"Ranking wireless security standards from weakest to strongest, which order is correct?",opts:["WEP → WPA2 → WPA → WPA3","WPA → WEP → WPA2 → WPA3","WEP → WPA → WPA2 → WPA3","WPA3 → WPA2 → WPA → WEP"],ans:2,exp:"The evolution from weakest to strongest is: WEP (1997, static RC4, completely broken) → WPA (2003, dynamic TKIP with RC4, outdated) → WPA2 (2004, AES-CCMP, widely used and secure when patched) → WPA3 (2018, AES-GCMP with SAE, current best standard). Each generation addressed critical weaknesses found in the previous one."},
+
+  // ── EMAIL SECURITY: S/MIME & PGP ───────────────────────────────────────────
+  {q:"Both S/MIME and PGP provide which core email security functions?",opts:["Spam filtering and phishing detection only","Confidentiality (encryption) and authentication/integrity (digital signatures)","IP address masking and server-side encryption only","Two-factor authentication for email login"],ans:1,exp:"Both S/MIME and PGP provide the same core security functions: Confidentiality — encrypting email content using the recipient's public key so only they can read it; and Authentication & Integrity — digitally signing emails using the sender's private key to prove identity and detect any modification. They differ in their trust models and implementation, not in their fundamental security goals."},
+  {q:"What trust model does S/MIME use to validate email identities?",opts:["Web of Trust — where individuals vouch for each other's key authenticity","Decentralized trust — where keys are shared peer-to-peer on key servers","Certificate Authority (CA) trust model — where a trusted third party validates and issues certificates","Blockchain-based trust — where the community validates keys collectively"],ans:0,exp:"S/MIME relies on the centralized Certificate Authority (CA) trust model. An organization or individual obtains a certificate from a trusted CA (like DigiCert or Comodo) that cryptographically binds their identity to their public key. Email clients automatically validate S/MIME certificates through the same trust chain used for HTTPS certificates. This makes S/MIME straightforward to use in enterprise environments with existing PKI."},
+  {q:"PGP uses a 'Web of Trust'. What does this mean?",opts:["PGP keys are validated by a central CA server","Users verify and sign each other's public keys directly, creating a decentralized trust network","PGP uses blockchain to validate key ownership","PGP encrypts keys before sharing them on key servers"],ans:1,exp:"The PGP Web of Trust is a decentralized model where trust is established through mutual endorsement. If Alice trusts Bob, and Bob has verified Carol's key and signed it, Alice can transitively trust Carol's key without needing a central authority. The more signatures a key has from people you already trust, the more trustworthy it is considered. This works well for individuals but is harder to manage in large organizations."},
+  {q:"S/MIME is typically BEST suited for which scenario?",opts:["Individual privacy advocates who want free, flexible encryption","Journalists communicating with anonymous sources","Companies, healthcare organizations, and legal firms needing centralized, high-compliance email security","Small peer groups who prefer decentralized trust"],ans:2,exp:"S/MIME integrates directly into enterprise email clients (Outlook, Apple Mail, Gmail Enterprise) and uses the same CA infrastructure already deployed in most corporate environments. Certificates are centrally managed by IT administrators. This makes S/MIME ideal for regulated industries — healthcare (HIPAA), finance, and legal — where centralized certificate management, audit trails, and automated compliance are required."},
+  {q:"PGP often requires which additional software since it is NOT natively built into most email clients?",opts:["A CA certificate from a commercial provider","Plugins or separate software such as GnuPG (GPG)","A dedicated VPN connection for key distribution","A RADIUS server for user authentication"],ans:1,exp:"Unlike S/MIME which is natively integrated into major email clients, PGP typically requires additional software to use. GnuPG (GPG) is the most common free, open-source implementation of the OpenPGP standard. Browser plugins (like Mailvelope for webmail) or desktop clients (like Thunderbird with Enigmail) add PGP support. This additional setup step makes PGP more common among technically sophisticated individual users."},
+
+  // ── NETWORK ACCESS CONTROL (NAC) ───────────────────────────────────────────
+  {q:"What is the primary purpose of Network Access Control (NAC)?",opts:["Encrypting all data at rest on network-connected devices","Managing endpoint access to corporate networks by verifying identity, device compliance, and enforcing security policies","Filtering malicious web content before it reaches users","Monitoring social media usage on corporate devices"],ans:1,exp:"NAC is a security solution that controls which devices and users can access a corporate network. Before (and during) a connection, NAC verifies user identity, checks whether the device meets security requirements (patched OS, active antivirus, enabled firewall), and assigns appropriate access levels. Non-compliant or unknown devices are blocked, quarantined, or placed in a restricted VLAN."},
+  {q:"NAC's 'Security Posture Check (Compliance)' function ensures that devices:",opts:["Are running the latest version of the company's VPN client","Have updated antivirus, OS patches, and firewall settings before being granted network access","Are using WPA3 for wireless connectivity","Have completed security awareness training in the past 90 days"],ans:1,exp:"The Security Posture Check is one of NAC's most important functions. Before granting full network access, NAC verifies that the connecting device meets defined security standards: up-to-date antivirus signatures, current OS security patches, enabled host firewall, and potentially disk encryption. Devices failing any check are quarantined to a remediation VLAN where they can be updated without risking the main network."},
+  {q:"In NAC, what happens to a device that fails the security compliance check?",opts:["It is automatically updated by the NAC system","It is granted read-only access to all resources","It is blocked, quarantined, or restricted to a limited VLAN for remediation","It triggers an alert but is still granted full network access"],ans:2,exp:"NAC's Access Enforcement capability means non-compliant devices are not simply refused — they are typically placed in a quarantine or remediation VLAN. In this restricted zone, they have enough access to download security patches, update antivirus definitions, or contact IT support, but they cannot reach sensitive internal resources, preventing them from spreading potential infections to the production network."},
+  {q:"NAC is considered a foundational component of which security architecture?",opts:["Defense-in-depth perimeter security model","DMZ (Demilitarized Zone) architecture","Zero Trust Network Architecture","Role-Based Access Control (RBAC) framework"],ans:2,exp:"NAC is a cornerstone of Zero Trust security — the principle that no user or device should be implicitly trusted, whether inside or outside the network perimeter. Zero Trust requires continuous verification: 'Never trust, always verify.' NAC implements this by checking identity and device health at every network access attempt, not just at initial login, and continuously monitoring devices after admission for signs of compromise."},
+  {q:"A Pre-Admission NAC model evaluates security posture:",opts:["Only after the device has been connected for 24 hours","Continuously at random intervals while connected","Before allowing the device to connect to the network","Only when an anomaly is detected in the traffic"],ans:2,exp:"Pre-Admission NAC checks device compliance and user authentication BEFORE granting any network access. Using protocols like 802.1X or VPN gateway checks, the device must prove it meets security requirements first. Only after passing all checks is the device admitted to the appropriate network segment. This prevents non-compliant devices from ever touching the network, reducing the attack surface significantly."},
+
+  // ── RADIUS ─────────────────────────────────────────────────────────────────
+  {q:"What does RADIUS stand for, and what is its primary function?",opts:["Remote Access Dial-In Unified Security — a firewall management protocol","Remote Authentication Dial-In User Service — a protocol providing centralized AAA for network access control","Routing and Authentication for Distributed Internet Users — a VPN tunnelling protocol","Real-time Access Detection and Intrusion Using Signatures — an IDS protocol"],ans:1,exp:"RADIUS (Remote Authentication Dial-In User Service) is a networking protocol that provides centralized Authentication (verifying identity), Authorization (determining permitted resources), and Accounting (tracking usage) — the AAA framework — for network access. It originated for dial-in modem authentication but is now used universally for Wi-Fi, VPN, and wired 802.1X network authentication."},
+  {q:"In the RADIUS client-server model, what acts as the RADIUS client?",opts:["The end-user's laptop or smartphone","A central authentication database like Active Directory","The Network Access Server (NAS) — such as a Wi-Fi access point, VPN gateway, or switch","The KDC (Key Distribution Center) on the domain controller"],ans:2,exp:"In RADIUS, the Network Access Server (NAS) — the device the user is trying to connect through (a wireless access point, VPN gateway, or network switch) — acts as the RADIUS client. When a user tries to authenticate, the NAS forwards their credentials to the central RADIUS server for validation. The RADIUS server checks them against its user database and replies with Access-Accept, Access-Reject, or Access-Challenge."},
+  {q:"Which RADIUS server response indicates that a user has successfully authenticated?",opts:["Access-Challenge","Access-Deny","Access-Reject","Access-Accept"],ans:3,exp:"When the RADIUS server verifies a user's credentials successfully against its database, it sends an Access-Accept response back to the NAS, which then grants the user network access with the appropriate permissions. Access-Reject means authentication failed (wrong credentials). Access-Challenge is used for multi-factor authentication — asking the user for additional proof (like a one-time password) before making a final decision."},
+  {q:"Which certificate-based authentication method does RADIUS support for very strong security?",opts:["CHAP (Challenge Handshake Authentication Protocol)","PAP (Password Authentication Protocol)","EAP-TLS (Extensible Authentication Protocol - Transport Layer Security)","MS-CHAPv2"],ans:2,exp:"EAP-TLS (Extensible Authentication Protocol - TLS) is the most secure RADIUS authentication method. Both the client AND the server present digital certificates for mutual authentication — eliminating password vulnerabilities entirely. The client certificate is typically stored on a smart card or device TPM chip. EAP-TLS is used in high-security environments like financial institutions and government networks where password-based authentication is insufficient."},
+  {q:"A major benefit of RADIUS is centralized management. What does this mean practically?",opts:["All user data is encrypted and stored on each individual device","Administrators can manage access policies for the entire network from a single location without configuring each device separately","Each network device maintains its own local user database for offline authentication","Users can manage their own VPN credentials without IT involvement"],ans:1,exp:"Centralized management means that instead of configuring user accounts, passwords, and access policies individually on each Wi-Fi access point, VPN gateway, or switch (which could be hundreds of devices), administrators manage everything from one RADIUS server. Adding a user, changing permissions, or revoking access is done once on the RADIUS server and instantly applies across all network access points."},
+  {q:"RADIUS is commonly integrated with which directory service to validate user credentials?",opts:["DNS (Domain Name System)","NTP (Network Time Protocol)","LDAP / Active Directory","SNMP MIB database"],ans:2,exp:"RADIUS servers typically don't store user credentials themselves — they forward authentication requests to a backend directory service. In enterprise environments, this is almost always Microsoft Active Directory (via LDAP) or another LDAP-compatible directory. This integration means the same username and password an employee uses to log into their Windows computer also works for Wi-Fi and VPN authentication — providing a unified identity management system."}
+];
+
+let currentQ = 0;
+const state = Array(questions.length).fill(null).map(() => ({selected:null,review:false}));
+let currentFilter = 'all';
+let resultData = [];
+
+function renderQuestion() {
+  const q = questions[currentQ], s = state[currentQ];
+  document.getElementById('qNumLabel').textContent = `Question ${currentQ+1} of ${questions.length}`;
+  document.getElementById('questionText').textContent = q.q;
+  const c = document.getElementById('optionsContainer');
+  c.innerHTML = '';
+  q.opts.forEach((opt,i) => {
+    const d = document.createElement('div');
+    d.className = 'option' + (s.selected===i?' selected':'');
+    d.innerHTML = `<div class="option-dot"></div><span>${opt}</span>`;
+    d.onclick = () => { state[currentQ].selected=i; renderQuestion(); renderGrid(); updateStatus(); };
+    c.appendChild(d);
+  });
+  renderGrid();
+}
+
+function hutSVG(fc,num,active) {
+  const lc = fc==='hut-unanswered'?'dark':'light';
+  const st = active?' stroke="#0288D1" stroke-width="2.5"':'';
+  return `<div class="q-icon-wrap" onclick="goTo(${num-1})"><svg class="q-svg" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="${fc}"${st}/></svg><span class="q-num-label ${lc}">${num}</span><div class="q-tooltip">Q${num}</div></div>`;
+}
+
+function renderGrid() {
+  document.getElementById('qGrid').innerHTML = state.map((s,i) => {
+    let c;
+    if(i===currentQ) c='hut-active';
+    else if(s.selected!==null&&s.review) c='hut-rev-ans';
+    else if(s.review) c='hut-review';
+    else if(s.selected!==null) c='hut-answered';
+    else c='hut-unanswered';
+    return hutSVG(c,i+1,i===currentQ);
+  }).join('');
+}
+
+function updateStatus() {
+  document.getElementById('answeredCount').textContent = state.filter(s=>s.selected!==null).length+' answered';
+  document.getElementById('reviewCount').textContent = state.filter(s=>s.review).length+' review';
+}
+
+function clearResponse() { state[currentQ].selected=null; renderQuestion(); renderGrid(); updateStatus(); }
+function markReview() { state[currentQ].review=!state[currentQ].review; renderGrid(); updateStatus(); }
+function goTo(idx) { if(idx<0||idx>=questions.length) return; currentQ=idx; renderQuestion(); updateStatus(); }
+
+function submitQuiz() {
+  const unanswered = state.filter(s=>s.selected===null).length;
+  if(unanswered>0 && !confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) return;
+  showResults();
+}
+
+function showResults() {
+  let correct=0,wrong=0,skipped=0;
+  resultData = questions.map((q,i) => {
+    const sel = state[i].selected;
+    let status;
+    if(sel===null){ skipped++; status='skip'; }
+    else if(sel===q.ans){ correct++; status='correct'; }
+    else{ wrong++; status='wrong'; }
+    return {q,sel,status};
+  });
+
+  const pct = Math.round((correct/questions.length)*100);
+  document.getElementById('scoreBig').textContent = `${correct}/${questions.length}`;
+  document.getElementById('scorePct').textContent = `${pct}% Score — ${pct>=75?'Pass':'Below Pass Mark'}`;
+  document.getElementById('statCorrect').textContent = correct;
+  document.getElementById('statWrong').textContent = wrong;
+  document.getElementById('statSkipped').textContent = skipped;
+
+  renderResultList();
+  document.getElementById('quizScreen').style.display='none';
+  document.getElementById('resultScreen').style.display='flex';
+  document.getElementById('resultScreen').style.flexDirection='column';
+  window.scrollTo(0,0);
+}
+
+function renderResultList() {
+  const list = document.getElementById('resultList');
+  const filtered = resultData.filter(d => currentFilter==='all' || d.status===currentFilter);
+  if(filtered.length===0){ list.innerHTML='<p style="text-align:center;color:#888;padding:30px;">No questions in this category.</p>'; return; }
+  list.innerHTML = filtered.map((d) => {
+    const origIdx = resultData.indexOf(d);
+    const {q,sel,status} = d;
+    const cardCls = status==='correct'?'correct-card':status==='wrong'?'wrong-card':'skip-card';
+    const badge = status==='correct'
+      ? '<span class="rc-badge badge-correct">&#10004; Correct</span>'
+      : status==='wrong'
+        ? '<span class="rc-badge badge-wrong">&#10008; Wrong</span>'
+        : '<span class="rc-badge badge-skip">&#8212; Skipped</span>';
+    const optsHtml = q.opts.map((opt,oi) => {
+      let cls='rc-opt', icon='';
+      if(oi===q.ans){ cls+=' opt-correct'; icon='<span class="opt-icon">&#10004;</span>'; }
+      else if(oi===sel&&sel!==q.ans){ cls+=' opt-wrong'; icon='<span class="opt-icon">&#10008;</span>'; }
+      return `<div class="${cls}">${icon}<span>${opt}</span></div>`;
+    }).join('');
+    return `<div class="result-card ${cardCls}">
+      <div class="rc-header"><span class="rc-qnum">Q${origIdx+1}</span>${badge}</div>
+      <div class="rc-question">${q.q}</div>
+      <div class="rc-opts">${optsHtml}</div>
+      <div class="rc-explanation"><strong>Explanation:</strong> ${q.exp}</div>
+    </div>`;
+  }).join('');
+}
+
+function applyFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.className='filter-btn');
+  btn.className = `filter-btn active-${f}`;
+  renderResultList();
+}
+
+function retakeQuiz() {
+  state.forEach(s=>{s.selected=null;s.review=false;});
+  currentQ=0; currentFilter='all';
+  document.getElementById('resultScreen').style.display='none';
+  document.getElementById('quizScreen').style.display='flex';
+  document.querySelectorAll('.filter-btn').forEach((b,i)=>{b.className='filter-btn'+(i===0?' active-all':'');});
+  renderQuestion(); updateStatus();
+}
+
+renderQuestion();
+updateStatus();
+</script>
+</body>
+</html>

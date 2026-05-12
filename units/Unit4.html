@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Network and Web Security – Unit 4 Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #dbeafe;
+    --secondary: #7c3aed;
+    --accent: #0ea5e9;
+    --success: #16a34a;
+    --success-light: #dcfce7;
+    --danger: #dc2626;
+    --danger-light: #fee2e2;
+    --warning: #ea580c;
+    --warning-light: #ffedd5;
+    --dark: #0f172a;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { 
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; 
+    background: var(--gray-50); 
+    min-height: 100vh; 
+    display: flex; 
+    flex-direction: column; 
+    color: var(--gray-800);
+  }
+
+  .top-bar { 
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
+    color: white; 
+    text-align: center; 
+    padding: 14px 28px; 
+    position: relative; 
+    box-shadow: var(--shadow-lg); 
+    flex-shrink: 0; 
+    z-index: 10;
+  }
+  .top-bar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.4;
+  }
+  .tape-fold { position: absolute; top: 0; bottom: 0; width: 24px; background: rgba(0,0,0,0.15); }
+  .tape-fold.left { left: 0; } .tape-fold.right { right: 0; }
+  .top-bar h1 { font-size: 20px; font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); position: relative; }
+  .top-bar p  { font-size: 13px; opacity: 0.9; margin-top: 4px; font-weight: 500; position: relative; }
+
+  .main-layout { display: flex; flex: 1; height: calc(100vh - 70px); }
+
+  .question-area { 
+    flex: 1; 
+    padding: 28px 36px; 
+    overflow-y: auto; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px; 
+  }
+  .q-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    background: white;
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-200);
+  }
+  .q-num { 
+    font-size: 13px; 
+    color: var(--primary); 
+    font-weight: 700; 
+    background: var(--primary-light); 
+    padding: 6px 16px; 
+    border-radius: 20px; 
+    border: 1.5px solid #93c5fd;
+  }
+  .q-marks { 
+    font-size: 13px; 
+    color: var(--success); 
+    font-weight: 700; 
+    background: var(--success-light); 
+    padding: 6px 16px; 
+    border-radius: 20px; 
+    border: 1.5px solid #86efac;
+  }
+  .q-text { 
+    font-size: 16px; 
+    color: var(--gray-800); 
+    font-weight: 500; 
+    line-height: 1.7; 
+    background: white; 
+    padding: 24px 28px; 
+    border-radius: var(--radius); 
+    border: 1px solid var(--gray-200); 
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--primary);
+  }
+
+  .options { display: flex; flex-direction: column; gap: 12px; }
+  .option { 
+    display: flex; 
+    align-items: center; 
+    gap: 16px; 
+    padding: 14px 20px; 
+    border-radius: var(--radius-sm); 
+    border: 2px solid var(--gray-200); 
+    background: white; 
+    cursor: pointer; 
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+    font-size: 14.5px; 
+    color: var(--gray-700);
+    position: relative;
+    overflow: hidden;
+  }
+  .option::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: transparent;
+    transition: background 0.2s;
+  }
+  .option:hover { 
+    border-color: var(--primary); 
+    background: var(--primary-light); 
+    transform: translateX(4px);
+    box-shadow: var(--shadow-md);
+  }
+  .option:hover::before { background: var(--primary); }
+  .option.selected { 
+    border-color: var(--primary); 
+    background: var(--primary-light); 
+    font-weight: 600; 
+    color: var(--primary-dark);
+    box-shadow: var(--shadow-md);
+  }
+  .option.selected::before { background: var(--primary); }
+  .option-dot { 
+    width: 22px; 
+    height: 22px; 
+    border-radius: 50%; 
+    border: 2.5px solid var(--gray-300); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    flex-shrink: 0; 
+    transition: all 0.2s; 
+    background: white; 
+  }
+  .option.selected .option-dot { 
+    border-color: var(--primary); 
+    background: var(--primary); 
+    transform: scale(1.1);
+  }
+  .option.selected .option-dot::after { 
+    content: ''; 
+    width: 9px; 
+    height: 9px; 
+    border-radius: 50%; 
+    background: white; 
+  }
+
+  .btn-row { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+  .btn { 
+    padding: 10px 22px; 
+    border-radius: var(--radius-sm); 
+    font-size: 13.5px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    border: none; 
+    transition: all 0.2s; 
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-clear { 
+    background: white; 
+    color: var(--gray-600); 
+    border: 2px solid var(--gray-300); 
+  } 
+  .btn-clear:hover { background: var(--gray-100); border-color: var(--gray-400); }
+  .btn-review { 
+    background: var(--secondary); 
+    color: white; 
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+  } 
+  .btn-review:hover { background: #6d28d9; transform: translateY(-1px); }
+  .btn-review.active-review {
+    background: var(--warning);
+    box-shadow: 0 2px 8px rgba(234, 88, 12, 0.3);
+  }
+  .btn-prev { 
+    background: white; 
+    color: var(--primary); 
+    border: 2px solid var(--primary); 
+  } 
+  .btn-prev:hover { background: var(--primary-light); }
+  .btn-next { 
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); 
+    color: white; 
+    margin-left: auto; 
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  } 
+  .btn-next:hover { 
+    background: linear-gradient(135deg, var(--primary-dark) 0%, #0284c7 100%); 
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+  }
+
+  .sidebar { 
+    width: 220px; 
+    background: white; 
+    border-left: 1px solid var(--gray-200); 
+    display: flex; 
+    flex-direction: column; 
+    flex-shrink: 0;
+    box-shadow: -4px 0 15px rgba(0,0,0,0.03);
+  }
+  .student-name-box { 
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
+    color: white; 
+    padding: 14px 14px; 
+    text-align: center; 
+    border-bottom: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .student-name-box::after {
+    content: '';
+    position: absolute;
+    bottom: -10px; left: 0; right: 0;
+    height: 20px;
+    background: white;
+    border-radius: 50% 50% 0 0;
+  }
+  .student-name-box .s-label { 
+    font-size: 10px; 
+    opacity: 0.85; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    font-weight: 600;
+  }
+  .student-name-box .s-name { 
+    font-size: 14px; 
+    font-weight: 800; 
+    margin-top: 4px; 
+    line-height: 1.4; 
+  }
+  .sidebar-legend { 
+    padding: 16px 14px 10px; 
+    border-bottom: 1px solid var(--gray-100);
+    margin-top: 8px;
+  }
+  .legend-item { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    font-size: 11.5px; 
+    color: var(--gray-600); 
+    margin-bottom: 7px; 
+    font-weight: 500;
+  }
+  .legend-shape { width: 22px; height: 22px; flex-shrink: 0; }
+  .hut-answered { fill: var(--success); } 
+  .hut-unanswered { fill: white; stroke: var(--gray-300); stroke-width: 1.8; }
+  .hut-review { fill: var(--secondary); } 
+  .hut-rev-ans { fill: var(--warning); } 
+  .hut-active { fill: var(--primary); }
+  .sidebar-section-title { 
+    font-size: 11px; 
+    font-weight: 700; 
+    color: var(--gray-400); 
+    padding: 12px 14px 6px; 
+    text-transform: uppercase; 
+    letter-spacing: 0.8px; 
+  }
+  .q-grid { 
+    padding: 6px 12px 12px; 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 6px; 
+    overflow-y: auto; 
+    flex: 1; 
+  }
+  .q-icon-wrap { 
+    position: relative; 
+    cursor: pointer; 
+    width: 36px; 
+    height: 36px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    transition: all 0.15s; 
+    border-radius: 8px;
+  }
+  .q-icon-wrap:hover { 
+    transform: scale(1.15); 
+    background: var(--gray-100);
+  } 
+  .q-icon-wrap:hover .q-tooltip { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+  .q-svg { width: 32px; height: 32px; }
+  .q-num-label { 
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -60%); 
+    font-size: 10px; 
+    font-weight: 800; 
+    pointer-events: none; 
+    z-index: 2; 
+    line-height: 1; 
+  }
+  .q-num-label.light { color: white; } 
+  .q-num-label.dark { color: var(--gray-700); }
+  .q-tooltip { 
+    position: absolute; 
+    bottom: 120%; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    background: var(--gray-800); 
+    color: white; 
+    font-size: 10px; 
+    padding: 4px 10px; 
+    border-radius: 6px; 
+    white-space: nowrap; 
+    opacity: 0; 
+    transition: all 0.2s; 
+    pointer-events: none; 
+    z-index: 99; 
+    font-weight: 600;
+    box-shadow: var(--shadow-md);
+  }
+  .status-bar { 
+    padding: 10px 14px; 
+    background: var(--gray-50); 
+    border-top: 1px solid var(--gray-200); 
+    font-size: 11.5px; 
+    color: var(--gray-500); 
+    display: flex; 
+    justify-content: space-between;
+    font-weight: 600;
+  }
+  .submit-btn { 
+    margin: 12px 14px 16px; 
+    padding: 12px; 
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
+    color: white; 
+    border: none; 
+    border-radius: var(--radius-sm); 
+    font-size: 13.5px; 
+    font-weight: 800; 
+    cursor: pointer; 
+    transition: all 0.2s; 
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    letter-spacing: 0.3px;
+  }
+  .submit-btn:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+  }
+
+  #resultScreen { display: none; flex-direction: column; flex: 1; overflow-y: auto; background: var(--gray-50); }
+  .score-banner { 
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
+    color: white; 
+    padding: 40px 32px; 
+    text-align: center; 
+    position: relative; 
+    overflow: hidden;
+  }
+  .score-banner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .score-banner .tape-fold { background: rgba(0,0,0,0.15); }
+  .score-banner h2 { font-size: 22px; font-weight: 800; margin-bottom: 10px; position: relative; }
+  .score-big { font-size: 64px; font-weight: 900; line-height: 1; position: relative; text-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+  .score-sub { font-size: 16px; opacity: 0.92; margin-top: 8px; font-weight: 600; position: relative; }
+  .pass-badge {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(4px);
+  }
+
+  .score-stats { 
+    display: flex; 
+    gap: 16px; 
+    padding: 24px 32px; 
+    background: white; 
+    border-bottom: 1px solid var(--gray-200); 
+    flex-wrap: wrap; 
+  }
+  .stat-box { 
+    flex: 1; 
+    min-width: 100px; 
+    text-align: center; 
+    padding: 18px 12px; 
+    border-radius: var(--radius); 
+    border: 2px solid transparent;
+    transition: transform 0.2s;
+  }
+  .stat-box:hover { transform: translateY(-2px); }
+  .stat-box.correct  { background: var(--success-light); border-color: #86efac; }
+  .stat-box.wrong    { background: var(--danger-light); border-color: #fca5a5; }
+  .stat-box.skipped  { background: #f3e8ff; border-color: #d8b4fe; }
+  .stat-box .s-val   { font-size: 36px; font-weight: 900; }
+  .stat-box.correct .s-val  { color: var(--success); }
+  .stat-box.wrong .s-val    { color: var(--danger); }
+  .stat-box.skipped .s-val  { color: var(--secondary); }
+  .stat-box .s-lbl   { font-size: 13px; color: var(--gray-500); font-weight: 700; margin-top: 6px; }
+
+  .filter-bar { 
+    display: flex; 
+    gap: 10px; 
+    padding: 18px 32px; 
+    background: white; 
+    border-bottom: 1px solid var(--gray-200); 
+    flex-wrap: wrap; 
+  }
+  .filter-btn { 
+    padding: 8px 18px; 
+    border-radius: 20px; 
+    font-size: 12.5px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    border: 2px solid var(--gray-200); 
+    background: white; 
+    color: var(--gray-600); 
+    transition: all 0.2s; 
+  }
+  .filter-btn:hover { border-color: var(--gray-300); background: var(--gray-50); }
+  .filter-btn.active-all     { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+  .filter-btn.active-correct { background: var(--success); color: white; border-color: var(--success); box-shadow: 0 2px 8px rgba(22,163,74,0.3); }
+  .filter-btn.active-wrong   { background: var(--danger); color: white; border-color: var(--danger); box-shadow: 0 2px 8px rgba(220,38,38,0.3); }
+  .filter-btn.active-skip    { background: var(--secondary); color: white; border-color: var(--secondary); box-shadow: 0 2px 8px rgba(124,58,237,0.3); }
+
+  .result-list { padding: 24px 32px; display: flex; flex-direction: column; gap: 20px; }
+  .result-card { 
+    background: white; 
+    border-radius: var(--radius); 
+    padding: 22px 26px; 
+    border-left: 5px solid #ccc; 
+    box-shadow: var(--shadow);
+    transition: all 0.2s;
+  }
+  .result-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateX(4px);
+  }
+  .result-card.correct-card { border-left-color: var(--success); }
+  .result-card.wrong-card   { border-left-color: var(--danger); }
+  .result-card.skip-card    { border-left-color: var(--gray-400); }
+  .rc-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+  .rc-qnum { font-size: 12px; font-weight: 700; color: var(--gray-400); white-space: nowrap; }
+  .rc-badge { font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; white-space: nowrap; }
+  .badge-correct { background: var(--success-light); color: var(--success); }
+  .badge-wrong   { background: var(--danger-light); color: var(--danger); }
+  .badge-skip    { background: var(--gray-100); color: var(--gray-500); }
+  .rc-question { font-size: 15px; font-weight: 600; color: var(--gray-800); line-height: 1.6; margin-bottom: 14px; }
+  .rc-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .rc-opt { 
+    font-size: 13.5px; 
+    padding: 9px 14px; 
+    border-radius: var(--radius-sm); 
+    border: 1.5px solid var(--gray-200); 
+    color: var(--gray-600); 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    transition: all 0.15s;
+  }
+  .rc-opt.opt-correct { 
+    background: var(--success-light); 
+    border-color: #86efac; 
+    color: #14532d; 
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(22,163,74,0.1);
+  }
+  .rc-opt.opt-wrong   { 
+    background: var(--danger-light); 
+    border-color: #fca5a5; 
+    color: #7f1d1d; 
+    font-weight: 600; 
+    text-decoration: line-through;
+    box-shadow: 0 1px 3px rgba(220,38,38,0.1);
+  }
+  .rc-opt .opt-icon   { font-size: 15px; flex-shrink: 0; }
+  .rc-explanation { 
+    background: var(--primary-light); 
+    border: 1px solid #93c5fd; 
+    border-radius: var(--radius-sm); 
+    padding: 14px 18px; 
+    font-size: 13.5px; 
+    color: #1e3a5f; 
+    line-height: 1.7;
+    border-left: 3px solid var(--primary);
+  }
+  .rc-explanation strong { color: var(--primary-dark); }
+
+  .retake-bar { 
+    padding: 24px 32px; 
+    background: white; 
+    border-top: 1px solid var(--gray-200); 
+    display: flex; 
+    gap: 14px; 
+    justify-content: center; 
+    flex-shrink: 0; 
+  }
+  .retake-btn { 
+    padding: 12px 32px; 
+    border-radius: var(--radius-sm); 
+    font-size: 14.5px; 
+    font-weight: 800; 
+    cursor: pointer; 
+    border: none; 
+    transition: all 0.2s; 
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .retake-btn.primary { 
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
+    color: white; 
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  } 
+  .retake-btn.primary:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+  }
+  .retake-btn.secondary { 
+    background: white; 
+    color: var(--primary); 
+    border: 2px solid var(--primary); 
+  } 
+  .retake-btn.secondary:hover { background: var(--primary-light); }
+
+  .topic-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: var(--gray-100);
+    color: var(--gray-500);
+    margin-bottom: 8px;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
+
+  @media (max-width: 768px) {
+    .sidebar { width: 180px; }
+    .question-area { padding: 16px 20px; }
+    .score-big { font-size: 48px; }
+  }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="tape-fold left"></div>
+  <div class="tape-fold right"></div>
+  <h1>Network and Web Security – Unit 4</h1>
+  <p>Web Application Architecture · SQLi · XSS · CSRF · Authentication · Deserialization · Secure Coding · HTTPS/HSTS/CSP · Server Security · Session Management</p>
+</div>
+
+<div id="quizScreen" style="display:flex;flex:1;">
+  <div class="main-layout">
+    <div class="question-area">
+      <div class="q-header">
+        <span class="q-num" id="qNumLabel">Question 1 of 60</span>
+        <span class="q-marks">Marks: 1</span>
+      </div>
+      <div class="q-text" id="questionText">Loading...</div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="btn-row">
+        <button class="btn btn-clear" onclick="clearResponse()">Clear Response</button>
+        <button class="btn btn-review" id="reviewBtn" onclick="markReview()">Mark for Review</button>
+        <button class="btn btn-prev" onclick="goTo(currentQ-1)">Previous</button>
+        <button class="btn btn-next" onclick="goTo(currentQ+1)">Next</button>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="student-name-box">
+        <div class="s-label">Student</div>
+        <div class="s-name">Umesh Kumar Mishra</div>
+      </div>
+      <div class="sidebar-legend">
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-answered"/></svg>Answered</div>
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-unanswered"/></svg>Not Answered</div>
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-review"/></svg>Mark for Review</div>
+        <div class="legend-item"><svg class="legend-shape" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="hut-rev-ans"/></svg>Answered + Review</div>
+      </div>
+      <div class="sidebar-section-title">Questions</div>
+      <div class="q-grid" id="qGrid"></div>
+      <div class="status-bar"><span id="answeredCount">0 answered</span><span id="reviewCount">0 review</span></div>
+      <button class="submit-btn" onclick="submitQuiz()">Submit Quiz</button>
+    </div>
+  </div>
+</div>
+
+<div id="resultScreen">
+  <div class="score-banner">
+    <div class="tape-fold left"></div>
+    <div class="tape-fold right"></div>
+    <h2>Quiz Results — Umesh Kumar Mishra</h2>
+    <div class="score-big" id="scoreBig">0/60</div>
+    <div class="score-sub" id="scorePct">0% Score</div>
+    <div class="pass-badge" id="passBadge">Below Pass Mark</div>
+  </div>
+  <div class="score-stats">
+    <div class="stat-box correct"><div class="s-val" id="statCorrect">0</div><div class="s-lbl">Correct</div></div>
+    <div class="stat-box wrong"><div class="s-val" id="statWrong">0</div><div class="s-lbl">Wrong</div></div>
+    <div class="stat-box skipped"><div class="s-val" id="statSkipped">0</div><div class="s-lbl">Skipped</div></div>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn active-all" onclick="applyFilter('all',this)">All Questions</button>
+    <button class="filter-btn" onclick="applyFilter('correct',this)">Correct Only</button>
+    <button class="filter-btn" onclick="applyFilter('wrong',this)">Wrong Only</button>
+    <button class="filter-btn" onclick="applyFilter('skip',this)">Skipped Only</button>
+  </div>
+  <div class="result-list" id="resultList"></div>
+  <div class="retake-bar">
+    <button class="retake-btn secondary" onclick="retakeQuiz()">Retake Quiz</button>
+    <button class="retake-btn primary" onclick="window.print()">Print Results</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  // ── MODERN WEB APPLICATION ARCHITECTURE ───────────────────────────────────
+  {q:"Which layer of modern web architecture uses Single-Page Applications (SPAs) and Progressive Web Apps (PWAs) to provide native-like browser experiences?",opts:["API / Gateway Layer","Service Layer (Business Logic)","Presentation Layer (Frontend)","Data / Storage Layer"],ans:2,exp:"The Presentation Layer (Frontend) utilizes SPAs and PWAs to deliver rich, app-like experiences directly in the browser. Technologies like WebAssembly (Wasm) now allow high-performance tasks such as 3D modeling to run at near-native speeds within this layer."},
+  {q:"What is the primary role of the API / Gateway Layer in modern web architecture?",opts:["Rendering user interface components","Acting as a central brain for request routing, authentication, and rate limiting","Storing and retrieving data from databases","Running machine learning models for predictions"],ans:1,exp:"The API / Gateway Layer acts as the central 'brain' for the application. It handles request routing, enforces authentication, applies rate limiting, and ensures backend services can communicate seamlessly with web, mobile, and IoT clients through an API-first design approach."},
+  {q:"Which architectural model allows teams to update specific features independently, reducing the 'blast radius' if a single component fails?",opts:["Monolithic Architecture","Microservices and Serverless models","Client-Server Architecture","Peer-to-Peer Architecture"],ans:1,exp:"Microservices and Serverless models in the Service Layer allow teams to develop, deploy, and update individual features independently. If one microservice fails, it does not cascade to bring down the entire application — this containment is what 'reducing the blast radius' means."},
+  {q:"In the Data / Storage Layer, what technology is used to store and retrieve data geographically closer to the user?",opts:["Blockchain distributed ledger","Edge Computing and distributed caching (e.g., Redis)","Centralized mainframe storage","Local hard disk arrays only"],ans:1,exp:"Modern Data / Storage Layers combine traditional SQL/NoSQL databases with distributed caching (like Redis) and Edge Computing. Edge Computing pushes data storage and processing closer to the end user's geographic location, dramatically reducing latency and improving response times."},
+  {q:"WebAssembly (Wasm) is significant in modern web architecture because it:",opts:["Replaces JavaScript entirely in all browsers","Allows high-performance tasks like 3D modeling to run at near-native speeds in the browser","Eliminates the need for backend servers","Provides built-in SQL database functionality"],ans:1,exp:"WebAssembly (Wasm) is a binary instruction format that enables code written in languages like C++, Rust, or Go to run in the browser at near-native speed. It is particularly valuable for performance-intensive tasks such as 3D rendering, video editing, and scientific simulations that would be too slow in pure JavaScript."},
+
+  // ── 2026 THREAT LANDSCAPE ─────────────────────────────────────────────────
+  {q:"According to the 2026 threat landscape, what percentage of organizations use AI coding assistants, making AI-generated code a top security blindspot?",opts:["Over 92%","Approximately 50%","Less than 30%","Exactly 75%"],ans:0,exp:"Over 92% of organizations now use AI coding assistants. While these tools boost productivity, AI-generated code often lacks proper input validation or contains insecure cryptographic patterns, creating a significant security blindspot that attackers actively exploit."},
+  {q:"Software Supply Chain attacks doubled in frequency by 2025. What is their primary target?",opts:["Individual user passwords","Third-party libraries and build pipelines","Browser cookie stores","Physical server hardware"],ans:1,exp:"Software Supply Chain attacks target third-party libraries, dependencies, and build pipelines. A single compromised dependency (such as a malicious npm or PyPI package) can affect thousands of downstream users and applications, making this attack vector extremely scalable and dangerous."},
+  {q:"Broken Access Control remains the #1 risk in 2026. Which vulnerability appears in nearly 100% of tested applications?",opts:["Cross-Site Scripting (XSS)","Insecure Direct Object References (IDOR)","SQL Injection (SQLi)","Denial of Service (DoS)"],ans:1,exp:"Insecure Direct Object References (IDOR) appear in nearly 100% of tested applications. IDOR occurs when an application exposes a direct reference to an internal implementation object (like a database key or file path) without proper access control, allowing attackers to access unauthorized data by manipulating the reference."},
+  {q:"What security model is necessitated by sophisticated botnets that now mimic human behavior to bypass traditional defenses?",opts:["Perimeter-based firewall model","AI-powered threat detection and Zero Trust models","Simple password authentication","MAC address filtering"],ans:1,exp:"Advanced Persistent Threats (APTs) and sophisticated botnets now mimic legitimate human behavior patterns — such as mouse movements, typing rhythms, and session durations — to evade traditional signature-based defenses. This necessitates AI-powered behavioral threat detection combined with Zero Trust 'never trust, always verify' architectures."},
+  {q:"As quantum computing advances, what are forward-thinking architectures beginning to test?",opts:["Classical RSA with 8192-bit keys","Post-quantum algorithms to protect sensitive data from future decryption","One-time pad encryption for all traffic","Biometric authentication replacing all passwords"],ans:1,exp:"Quantum computers threaten to break current public-key cryptography (RSA, ECC) using Shor's algorithm. Forward-thinking architectures are testing post-quantum cryptographic algorithms — such as lattice-based, hash-based, and multivariate polynomial cryptography — to ensure sensitive data remains protected even against future quantum decryption capabilities."},
+
+  // ── SQL INJECTION (SQLi) ──────────────────────────────────────────────────
+  {q:"SQL Injection occurs when an attacker inserts malicious SQL code into input fields to:",opts:["Crash the web server","Manipulate backend database queries","Steal CSS stylesheets","Modify the browser's DOM structure"],ans:1,exp:"SQL Injection (SQLi) is a critical vulnerability where attackers insert malicious SQL statements into application input fields. These injected commands are then executed by the backend database, allowing attackers to read, modify, or delete data, bypass authentication, or even execute administrative operations on the database."},
+  {q:"In UNION-based SQL Injection, what does the attacker use the UNION operator for?",opts:["To delete database tables","To combine results of two unrelated queries and exfiltrate data into the HTTP response","To encrypt database traffic","To create new user accounts"],ans:1,exp:"UNION-based SQLi uses the SQL UNION operator to combine the results of the application's legitimate query with a second, attacker-crafted query. This allows the attacker to extract data from other tables (like usernames and passwords) and have it returned directly in the visible HTTP response, making exfiltration extremely efficient."},
+  {q:"What is the critical difference between Boolean-based and Time-based Blind SQL Injection?",opts:["Boolean-based uses error messages; Time-based does not","Boolean-based observes page content changes; Time-based triggers delays like SLEEP() to infer truth","Boolean-based only works on MySQL; Time-based works on all databases","Boolean-based is faster than Time-based"],ans:1,exp:"In Boolean-based Blind SQLi, attackers send true/false queries and observe if the page content changes (e.g., 'AND 1=1' vs 'AND 1=2'). In Time-based Blind SQLi, attackers trigger time delays (e.g., using SLEEP(5)) — if the response takes longer, the condition is true. Both methods infer information without direct data output."},
+  {q:"Second-Order SQL Injection is particularly dangerous because:",opts:["It executes immediately upon input","Malicious input is safely stored first but executed unsafely when retrieved later","It only affects NoSQL databases","It requires no user interaction"],ans:1,exp:"Second-Order SQLi is an advanced variant where malicious input is initially stored safely (e.g., in a database via proper escaping). However, when that stored data is later retrieved and used in a different query without proper parameterization, the injected SQL executes. This bypasses initial input validation and is harder to detect because the attack payload is not executed at the point of entry."},
+  {q:"Which detection technique involves submitting a single quote (') to look for database errors?",opts:["Automated Scanning","Static Analysis","Manual Probing","Dynamic Application Security Testing (DAST)"],ans:2,exp:"Manual Probing is a hands-on technique where security testers submit characters like a single quote ('), semicolons (;), or boolean logic like 'OR 1=1' into input fields. If the application returns database error messages or behaves unexpectedly, it indicates a potential SQL Injection vulnerability that requires further investigation."},
+  {q:"What is the GOLD STANDARD defense against SQL Injection in 2026?",opts:["Input filtering and blacklisting","Parameterized Queries (Prepared Statements)","Web Application Firewalls alone","Generic error messages"],ans:1,exp:"Parameterized Queries (Prepared Statements) are the industry gold standard for SQLi prevention. They separate the SQL code structure from user-supplied data by using placeholders. The database treats all user input strictly as data values, never as executable code, making it virtually impossible for injected SQL to alter the query structure."},
+  {q:"How do ORMs like Sequelize or Prisma help prevent SQL Injection?",opts:["They disable all database queries","They typically use parameterized queries by default","They encrypt all database traffic","They replace SQL with NoSQL"],ans:1,exp:"Object-Relational Mappers (ORMs) such as Sequelize, Prisma, Hibernate, and Entity Framework abstract database interactions into object-oriented code. Crucially, they generate SQL using parameterized queries by default, meaning developers rarely write raw SQL strings. This abstraction layer significantly reduces the risk of accidentally introducing SQL Injection vulnerabilities."},
+  {q:"Why is the Principle of Least Privilege important in SQL Injection defense?",opts:["It makes the application run faster","It ensures the database user has minimum necessary permissions, preventing DROP TABLE or GRANT operations even if SQLi occurs","It encrypts all database connections","It prevents users from accessing the website"],ans:1,exp:"Even with parameterized queries, defense in depth requires the application's database user to have only the minimum necessary permissions. If an SQL Injection vulnerability somehow bypasses other defenses, a restricted account cannot execute destructive commands like DROP TABLE, GRANT privileges, or access tables outside its scope — containing the damage."},
+
+  // ── CROSS-SITE SCRIPTING (XSS) ──────────────────────────────────────────
+  {q:"Cross-Site Scripting (XSS) occurs when an attacker injects malicious scripts into a trusted website, which then execute in the:",opts:["Server's operating system","Victim's browser","Database management system","Network router firmware"],ans:1,exp:"XSS exploits the trust a user has in a particular website. When an attacker injects malicious JavaScript into a trusted site, the victim's browser executes that script in the security context of the trusted domain. This allows the script to access cookies, session tokens, and sensitive page content that the browser associates with that domain."},
+  {q:"Which type of XSS is considered the MOST dangerous because the script is permanently stored on the server?",opts:["Reflected (Non-Persistent) XSS","DOM-based XSS","Stored (Persistent) XSS","Self-XSS"],ans:2,exp:"Stored (Persistent) XSS is the most dangerous type because the malicious script is permanently saved on the server — in a database, comment field, user profile, or forum post. Every user who views that infected page receives and executes the attacker's script, enabling mass account hijacking, session theft, or drive-by malware distribution."},
+  {q:"In DOM-based XSS, where does the vulnerability exist?",opts:["In the server-side code only","Entirely in the client-side JavaScript code","In the database schema","In the network firewall rules"],ans:1,exp:"DOM-based XSS is a client-side vulnerability. The server is completely uninvolved — the malicious script executes when the page's JavaScript reads data from an attacker-controlled source (like the URL fragment, window.name, or postMessage) and writes it to an unsafe 'sink' (like innerHTML, document.write, or eval()) without proper sanitization."},
+  {q:"What is the PRIMARY defense against XSS?",opts:["Input validation alone","Output Encoding (converting special characters like < to &lt;)","Disabling JavaScript in browsers","Using only static HTML pages"],ans:1,exp:"Output Encoding is the primary XSS defense. Before rendering any user-supplied data in the browser, special HTML characters like <, >, &, and ' must be converted to their HTML entity equivalents (&lt;, &gt;, &amp;, &#x27;). This ensures the browser treats the data as text content rather than executable code, regardless of where the malicious input originated."},
+  {q:"How does Content Security Policy (CSP) protect against XSS?",opts:["It encrypts all JavaScript files","It acts as a browser-level firewall defining trusted script sources and blocking unauthorized inline scripts","It scans for viruses in uploaded files","It replaces HTTPS connections"],ans:1,exp:"CSP is a powerful browser-level security layer delivered via HTTP headers. A strict CSP like 'script-src self https://cdn.com' tells the browser exactly which sources are trusted for scripts. It blocks unauthorized inline scripts, eval() calls, and dynamically injected code — even if an XSS vulnerability exists in the application, the browser refuses to execute the injected script."},
+  {q:"Modern frameworks like React, Angular, and Vue provide XSS protection by:",opts:["Disabling all user input","Automatically encoding data before rendering it in the DOM","Using proprietary encryption algorithms","Blocking all third-party scripts"],ans:1,exp:"Modern JavaScript frameworks provide built-in XSS protection by automatically escaping data before rendering it. React uses JSX escaping, Angular has built-in sanitization, and Vue automatically escapes template interpolations. However, developers can still bypass these protections using dangerouslySetInnerHTML (React) or innerHTML directly, which is why secure coding practices remain essential."},
+  {q:"Setting the HTTPOnly flag on sensitive cookies prevents XSS attacks from:",opts:["Sending cookies over HTTP instead of HTTPS","Allowing JavaScript to access the cookie, making session token theft impossible","Expiring the cookie after session end","Encrypting the cookie contents"],ans:1,exp:"The HTTPOnly flag is a cookie attribute that prevents client-side scripts (including malicious XSS payloads) from accessing the cookie via document.cookie. Since XSS attacks primarily aim to steal session tokens to hijack accounts, HTTPOnly cookies render this attack vector ineffective — the attacker cannot read the session ID even if they successfully inject JavaScript."},
+
+  // ── CROSS-SITE REQUEST FORGERY (CSRF) ─────────────────────────────────────
+  {q:"CSRF is a 'one-click' attack that exploits the fact that browsers automatically include what with every request to a specific domain?",opts:["JavaScript files","Cookies (session tokens)","CSS stylesheets","WebAssembly modules"],ans:1,exp:"CSRF exploits the browser's fundamental behavior: it automatically attaches all cookies associated with a domain to every request made to that domain, regardless of where the request originated. If a user is logged into bank.com and visits a malicious site, that site can trigger a request to bank.com with the user's valid session cookies attached, causing unauthorized actions."},
+  {q:"What is the fundamental difference between XSS and CSRF?",opts:["XSS steals data; CSRF changes state by exploiting website trust in the user's browser","XSS requires user interaction; CSRF does not","XSS only affects mobile browsers; CSRF affects desktop","They are identical attacks with different names"],ans:0,exp:"XSS exploits the USER'S trust in a website to execute malicious code in their browser and steal data. CSRF exploits the WEBSITE'S trust in the USER'S browser — specifically the automatic cookie-sending behavior — to perform unauthorized state-changing actions like password changes, fund transfers, or email updates without the user's knowledge or consent."},
+  {q:"What is the GOLD STANDARD mechanism for preventing CSRF?",opts:["SameSite cookies alone","Anti-CSRF Tokens (Synchronizer Token Pattern)","HTTPS encryption","IP address whitelisting"],ans:1,exp:"Anti-CSRF Tokens (Synchronizer Token Pattern) are the gold standard. The server generates a unique, cryptographically strong, unpredictable token for the user's session. This token must be included in every state-changing request (POST, PUT, DELETE). The server rejects any request lacking a valid token. Since attackers cannot read the token from the victim's page (due to Same-Origin Policy), they cannot forge valid requests."},
+  {q:"The SameSite=Lax cookie attribute (modern browser default) provides protection by:",opts:["Preventing cookies from being sent on all cross-site requests","Blocking cookies on cross-site subrequests (images, frames) but allowing top-level navigations (clicking links)","Encrypting cookie contents","Requiring two-factor authentication"],ans:1,exp:"SameSite=Lax is the modern browser default. It prevents cookies from being sent on dangerous cross-site subrequests — such as POST forms, embedded images, iframes, and AJAX calls from other sites — while still allowing cookies for safe top-level navigations (like clicking a normal link). This blocks CSRF attacks while preserving basic cross-site usability."},
+  {q:"For high-risk actions like deleting an account, which defense effectively kills CSRF because the attacker cannot simulate it?",opts:["SameSite cookies","Anti-CSRF tokens","Re-authentication (password) or CAPTCHA","Origin header verification"],ans:2,exp:"Interaction-Based Defenses like requiring re-authentication (entering the password again) or solving a CAPTCHA for high-risk actions are extremely effective against CSRF. The attacker cannot simulate these user interactions from a malicious site — they cannot know the user's password or solve a CAPTCHA on the victim's behalf. This adds a critical human verification layer for destructive operations."},
+  {q:"In a Double Submit Cookie defense for stateless APIs, how is CSRF prevented?",opts:["By encrypting all cookies with AES","By sending a random value both in a cookie and as a request parameter, then verifying they match","By blocking all cross-origin requests","By using only POST requests"],ans:1,exp:"Double Submit Cookies work by sending a cryptographically random value in both a cookie and as a request parameter (header or form field). The server verifies that both values match. Since an attacker performing CSRF can automatically send cookies but cannot read them (Same-Origin Policy), they cannot know the cookie value to include it in the request parameter — making forgery impossible."},
+
+  // ── BROKEN AUTHENTICATION ─────────────────────────────────────────────────
+  {q:"Broken Authentication allows attackers to compromise passwords, keys, or session tokens to:",opts:["Deface the website homepage","Assume other users' identities","Crash the database server","Slow down network traffic"],ans:1,exp:"Broken Authentication occurs when an application fails to properly manage user identities. Attackers exploit weak authentication mechanisms to compromise passwords, cryptographic keys, or session tokens — ultimately allowing them to impersonate legitimate users, access unauthorized accounts, and perform actions as that user."},
+  {q:"Credential Stuffing attacks involve:",opts:["Guessing passwords randomly","Using automated scripts to test millions of leaked username/password pairs from other breaches","Social engineering users to reveal passwords","Exploiting SQL Injection in login forms"],ans:1,exp:"Credential Stuffing leverages the reality that users often reuse passwords across multiple services. Attackers use automated tools to test millions of username/password combinations leaked from previous data breaches against a target site's login page. Since 2026, attackers use AI to scale these attacks and bypass weak rate limiting mechanisms."},
+  {q:"Session Fixation is an attack where the attacker:",opts:["Steals an existing session cookie","Forces a user to use a known session ID, then hijacks the session after login","Guesses session IDs using brute force","Creates infinite sessions to crash the server"],ans:1,exp:"In Session Fixation, the attacker provides a known session ID to the victim (often via a malicious link containing a preset session ID). When the victim logs in, if the application fails to regenerate the session ID, the attacker can use their pre-known session ID to access the authenticated session. This is why session ID regeneration immediately after login is critical."},
+  {q:"What is the single most effective defense against credential stuffing and brute force attacks?",opts:["Complex password requirements","Multi-Factor Authentication (MFA) with hardware tokens or app-based TOTP","Password expiration every 30 days","Security questions"],ans:1,exp:"Multi-Factor Authentication (MFA) is the single most effective defense against credential-based attacks. Even if an attacker obtains the correct password, they cannot authenticate without the second factor. Hardware tokens (FIDO2/WebAuthn) and app-based TOTP (Time-based One-Time Password) are preferred over SMS, which is vulnerable to SIM swapping and interception attacks."},
+  {q:"Which password hashing algorithm is recommended in 2026 for storing passwords securely?",opts:["MD5","SHA-1","Argon2id or Bcrypt","Base64 encoding"],ans:2,exp:"Argon2id (winner of the Password Hashing Competition) and Bcrypt are the recommended password hashing algorithms in 2026. They are slow, memory-hard functions designed specifically to make brute-force attacks computationally expensive. Argon2id is particularly resistant to GPU and side-channel attacks. Never use fast hashes like MD5 or SHA-1 for password storage."},
+  {q:"Secure session management requires that session cookies use which three flags?",opts:["Secure, HttpOnly, and SameSite","Encrypted, Compressed, and Signed","Local, Session, and Persistent","Public, Private, and Shared"],ans:0,exp:"Secure cookies are transmitted only over HTTPS connections. HttpOnly prevents JavaScript from accessing the cookie (XSS defense). SameSite controls cross-site cookie sending (CSRF defense). Together, these three flags form the essential 'seatbelt' for session cookie security in modern web applications."},
+  {q:"What should an application do immediately after a successful login to prevent Session Fixation?",opts:["Delete all cookies","Regenerate the Session ID","Extend the session timeout","Log the IP address"],ans:1,exp:"Session ID Regeneration is mandatory immediately after successful authentication. When a user transitions from an anonymous/unauthenticated state to an authenticated state, the application must issue a completely new session ID. This prevents Session Fixation attacks where an attacker pre-sets a known session ID and waits for the victim to authenticate."},
+
+  // ── INSECURE DESERIALIZATION ──────────────────────────────────────────────
+  {q:"Insecure Deserialization occurs when an application converts untrusted, user-controllable data back into an object without:",opts:["Proper input validation","Proper type checking","Proper authorization","Proper output encoding"],ans:0,exp:"Insecure Deserialization is a critical vulnerability where applications deserialize (reconstruct objects from) untrusted data without proper validation. When a malicious serialized object is deserialized, it may instantiate unexpected classes or trigger 'magic methods' (like __wakeup in PHP or readObject in Java) that execute attacker-controlled code."},
+  {q:"What is the most severe potential impact of Insecure Deserialization?",opts:["Slow page loading","Remote Code Execution (RCE), allowing full server control","Minor CSS rendering issues","Loss of browser cache"],ans:1,exp:"Insecure Deserialization can lead to Remote Code Execution (RCE) — the most severe security impact. When an attacker controls the deserialized object, they can manipulate it to execute arbitrary system commands, giving them full control over the server. Other impacts include Denial-of-Service (DoS) by exhausting memory and Privilege Escalation."},
+  {q:"In Java deserialization attacks, what are 'gadget chains'?",opts:["Hardware devices connected in series","Strings of existing, legitimate library classes combined to perform malicious actions during deserialization","Network routing paths","Database connection pools"],ans:1,exp:"Java deserialization attacks often exploit 'gadget chains' — sequences of existing, legitimate classes within the application's classpath. Each class performs a harmless action individually, but when chained together in a specific order during deserialization, they collectively achieve a malicious outcome (like executing shell commands). Attackers don't need to upload malicious classes; they simply abuse what's already present."},
+  {q:"Why is Python's pickle module considered notoriously insecure for deserializing untrusted data?",opts:["It is too slow","It can execute arbitrary system commands the moment it is loaded","It only works on Windows","It corrupts database connections"],ans:1,exp:"Python's pickle module is powerful but dangerous because it can execute arbitrary Python code during deserialization. A malicious pickle payload can contain instructions to run system commands, open reverse shells, or modify files. The Python documentation explicitly warns: 'Never unpickle data received from an untrusted or unauthenticated source.'"},
+  {q:"What is the most effective defense against Insecure Deserialization?",opts:["Using a Web Application Firewall","Never accepting serialized objects from untrusted sources","Encrypting all network traffic","Increasing server RAM"],ans:1,exp:"The most effective defense is architectural: never accept serialized objects from untrusted sources. If an application must receive structured data from users, use pure data formats like JSON or XML that do not support object instantiation or method execution. Unlike native serialization formats, JSON can only represent data primitives — strings, numbers, arrays, and objects — not executable code."},
+  {q:"If serialization must be used with untrusted data, which defense provides integrity verification?",opts:["Digital signatures like HMAC","Base64 encoding","URL encoding","HTML entities"],ans:0,exp:"When serialization with untrusted data is unavoidable, implement digital signatures using HMAC (Hash-based Message Authentication Code). The sender signs the serialized data with a secret key, and the receiver verifies the signature before deserialization. If the data has been tampered with, the signature verification fails, preventing the malicious payload from reaching the deserializer."},
+  {q:"What is 'look-ahead deserialization' or Strict Allowlisting?",opts:["Predicting future deserialization attacks","Checking the class name before instantiation, allowing only a strictly defined set of safe classes","Loading all classes in advance","Using AI to detect malicious objects"],ans:1,exp:"Strict Allowlisting (look-ahead deserialization) inspects the class type information embedded in the serialized stream BEFORE instantiating the object. The deserializer maintains a strict list of permitted classes and rejects any attempt to instantiate classes outside that list. This prevents attackers from injecting arbitrary malicious classes, even if they can control the serialized data format."},
+
+  // ── SECURE CODING PRINCIPLES ──────────────────────────────────────────────
+  {q:"The Defence in Depth principle states that:",opts:["Only one security control is needed","Multiple independent security layers should back each other up","Security is the responsibility of only the security team","All code should be written in one programming language"],ans:1,exp:"Defence in Depth is a layered security strategy. If the WAF fails, input validation should catch the attack; if that fails, parameterized queries should prevent the database breach; if that fails, least privilege should contain the damage. Each layer acts as an independent backup, ensuring no single point of failure can compromise the entire system."},
+  {q:"The Principle of Least Privilege (PoLP) requires that:",opts:["All users have administrator access","Every module, user, and service operates using the minimum permissions necessary","All passwords are shared among team members","All network ports remain open"],ans:1,exp:"PoLP dictates that every component should have only the minimum permissions required to perform its function. The web app's database user should only have SELECT/INSERT/UPDATE on specific tables — never DROP or GRANT. The application should only have write access to specific upload directories, not the entire filesystem. This containment limits damage if a component is compromised."},
+  {q:"Fail Securely means that when an application encounters an error, it should:",opts:["Show detailed stack traces to help debugging","Default to the most secure state and show generic error messages","Restart the server automatically","Send error details to all users"],ans:1,exp:"Fail Securely is the principle that systems should default to a secure state when something goes wrong. If an exception occurs during an 'Is User Admin?' check, the application must return False (deny access) rather than True. Detailed stack traces, database errors, and system information must never be shown to end users — they aid attackers in fingerprinting the system."},
+  {q:"Input Validation using Allowlisting works by:",opts:["Filtering out known bad characters","Defining exactly what is allowed and rejecting everything else","Accepting all input and sanitizing later","Using regular expressions to match SQL patterns"],ans:1,exp:"Allowlisting (positive validation) defines exactly what is permitted — e.g., 'only alphabetic characters,' 'exactly 10 digits,' or 'email format matching RFC 5322' — and rejects everything that does not match. This is far more secure than blacklisting (trying to filter out bad input), because attackers can always find new ways to encode malicious payloads that bypass blacklist filters."},
+  {q:"Why should applications avoid 'Security by Obscurity'?",opts:["It is too expensive","Hiding source code or using non-standard ports is not real security; strong cryptography and robust logic are required","It confuses legitimate users","It slows down application performance"],ans:1,exp:"Security by Obscurity relies on hiding information — source code, system architecture, or ports — rather than implementing strong controls. Kerckhoffs's Principle states that a cryptosystem should be secure even if everything about the system is public knowledge. Real security comes from strong cryptography, robust access controls, and sound logic, not from being hidden. Assume the attacker knows your entire system design."},
+  {q:"Secure Defaults require that applications:",opts:["Be insecure by default to allow easy setup","Be secure 'out of the box' with strong settings enabled by default","Require no authentication for initial setup","Use default passwords for convenience"],ans:1,exp:"Secure Defaults means applications ship with the most secure configuration active by default. Passwords must have minimum complexity requirements. Sessions should time out after 15 minutes of inactivity. Security headers like HSTS and CSP should be enabled in framework boilerplate. Users should have to explicitly weaken security for convenience, not strengthen it for protection."},
+  {q:"Why is complexity considered 'the enemy of security'?",opts:["Complex code is more expensive","Complex code is harder to audit and more likely to contain unintended vulnerabilities","Complex code runs slower","Complex code requires more comments"],ans:1,exp:"Complexity increases the attack surface and reduces the ability of developers and security auditors to understand the code fully. Complex systems contain 'logic bombs' — unintended side effects and edge cases that attackers can exploit. Modular, clean, simple code is easier to review, test, and secure. The simpler the code, the fewer places vulnerabilities can hide."},
+
+  // ── WEB COMMUNICATION SECURITY ───────────────────────────────────────────
+  {q:"HTTPS protects against which three threats during data transit?",opts:["XSS, CSRF, and SQL Injection","Man-in-the-Middle attacks, eavesdropping, and data tampering","Session fixation, brute force, and phishing","DDoS, spam, and malware"],ans:1,exp:"HTTPS (HTTP over TLS) encrypts data between the browser and server. This encryption protects against Man-in-the-Middle (MitM) attacks where attackers intercept traffic, eavesdropping where attackers read sensitive data in transit, and data tampering where attackers modify requests or responses. It does NOT protect against application-level vulnerabilities like XSS or SQLi."},
+  {q:"As of 2026, what is the baseline TLS version for secure web communication?",opts:["TLS 1.0","TLS 1.1","TLS 1.2","TLS 1.3"],ans:3,exp:"TLS 1.3 is the 2026 baseline standard. Older versions (TLS 1.0 and 1.1) are deprecated and actively blocked by modern browsers because they use weak cryptographic ciphers and are vulnerable to attacks like POODLE and BEAST. TLS 1.3 removes legacy algorithms, reduces handshake latency, and provides stronger security guarantees than previous versions."},
+  {q:"What is the purpose of HSTS (HTTP Strict Transport Security)?",opts:["Encrypting data payloads","Preventing protocol downgrade attacks (SSL Stripping) by forcing HTTPS-only communication","Blocking cross-site scripting","Compressing HTTP responses"],ans:1,exp:"HSTS is a response header that instructs the browser: 'Only communicate with this server over HTTPS for the specified duration.' It prevents SSL Stripping attacks where an attacker downgrades a connection from HTTPS to HTTP. The header 'Strict-Transport-Security: max-age=63072000; includeSubDomains; preload' ensures the browser never attempts insecure connections, even on first visit if preloaded."},
+  {q:"HSTS Preloading means:",opts:["Loading websites faster","Major browsers maintain a list of domains that should never use HTTP, closing the first-visit vulnerability","Preloading JavaScript files","Caching SSL certificates"],ans:1,exp:"HSTS Preloading addresses the vulnerability that a user's first visit to a site might still use HTTP before the HSTS header is received. Major browsers (Chrome, Firefox, Edge, Safari) maintain a 'Preload List' of domains submitted via hstspreload.org. If a domain is on this list, the browser will never attempt an insecure HTTP connection, closing the window for a first-visit SSL Stripping attack."},
+  {q:"Content Security Policy (CSP) primarily protects against:",opts:["SQL Injection","XSS (Cross-Site Scripting) and data injection attacks","Denial of Service","Man-in-the-Middle attacks"],ans:1,exp:"CSP is the most effective browser-level defense against XSS. By defining a policy like 'script-src self https://cdn.com', it tells the browser exactly which script sources are trusted. It blocks inline scripts, eval() calls, and dynamically injected code. Even if an attacker finds an XSS vulnerability, CSP prevents the browser from executing the injected malicious script."},
+  {q:"Which three security headers form the 'Big Three' pillars of web communication security?",opts:["XSS, CSRF, SQLi","HTTPS, HSTS, CSP","OAuth, SAML, OpenID","JWT, API keys, Bearer tokens"],ans:1,exp:"The 'Big Three' pillars are: HTTPS (encrypts data in transit at the Transport/TLS layer), HSTS (prevents protocol downgrade at the Browser Policy layer), and CSP (blocks XSS and data injection at the Content/Browser layer). Together, they provide defense-in-depth for data transit, protocol integrity, and content security."},
+
+  // ── WEB SERVER SECURITY & MISCONFIGURATIONS ───────────────────────────────
+  {q:"Which common misconfiguration allows users to see a list of files in a folder, potentially revealing sensitive source code?",opts:["Default Credentials","Directory Browsing enabled","Unnecessary Services running","Information Leakage in headers"],ans:1,exp:"Directory Browsing (or Directory Listing) is a server misconfiguration where the web server displays the contents of a directory when no index file is present. This can reveal sensitive files like source code, backup files (.bak, .old), configuration files, and database dumps. It should always be disabled in production environments."},
+  {q:"Server headers that reveal specific versions (e.g., 'Server: Apache/2.4.41 (Ubuntu)') help attackers by:",opts:["Improving caching performance","Providing information to find specific exploits for that exact version","Validating SSL certificates","Compressing responses"],ans:1,exp:"Information Leakage via server banners gives attackers precise version numbers of the web server, operating system, and installed modules. With this information, attackers can search vulnerability databases (like CVE) for known exploits targeting that specific version. Server hardening requires configuring Apache, Nginx, or IIS to hide or modify these banner strings."},
+  {q:"Which server hardening technique involves disabling modules you don't use (e.g., mod_autoindex or mod_status) to reduce potential bugs?",opts:["Directory Browsing","Removing Unused Modules","Running as Root User","Virtual Patching"],ans:1,exp:"Removing Unused Modules reduces the attack surface by eliminating code paths that could contain vulnerabilities. Every enabled module is a potential source of bugs. For example, mod_autoindex enables directory listing, and mod_status exposes server statistics. Disabling modules that are not required for the application to function follows the Principle of Least Privilege at the server level."},
+  {q:"Why should the web server process run as a non-root user (e.g., www-data)?",opts:["To improve performance","To limit damage if the server is compromised — the attacker won't have full root access","To enable more connections","To simplify log management"],ans:1,exp:"Running the web server as a non-privileged user (like www-data on Linux) is critical. If the server process is compromised through a vulnerability like a buffer overflow or RCE, the attacker gains only the privileges of that user — not root. This prevents the attacker from installing persistent malware, modifying system files, or pivoting to other services on the machine."},
+  {q:"What is 'Virtual Patching' via a Web Application Firewall (WAF)?",opts:["Permanently fixing the vulnerability in the source code","Blocking traffic that tries to exploit a specific bug while a permanent fix is being developed","Replacing the physical server hardware","Disabling the vulnerable feature entirely"],ans:1,exp:"Virtual Patching is an emergency response technique. When a zero-day vulnerability is discovered in server software, a WAF can provide immediate protection by blocking HTTP requests that match the attack pattern. This buys time for developers to develop, test, and deploy a permanent code fix without leaving the application exposed to active exploitation."},
+  {q:"Immutable Infrastructure in server security means:",opts:["Servers that cannot be modified by administrators","Treating servers as disposable units that are replaced rather than updated, eliminating configuration drift","Servers that run forever without rebooting","Servers with hardware write-protection"],ans:1,exp:"Immutable Infrastructure means servers are never modified in-place. When a patch or update is needed, a new server image is built with the changes, tested, and deployed. The old server is destroyed. This eliminates configuration drift — the gradual, undocumented changes that accumulate on long-running servers and create security inconsistencies. It also prevents long-term malware persistence."},
+
+  // ── COOKIE SECURITY & SESSION MANAGEMENT ──────────────────────────────────
+  {q:"Which cookie attribute ensures the cookie is only transmitted over encrypted HTTPS connections?",opts:["HttpOnly","Secure","SameSite","Path"],ans:1,exp:"The Secure flag ensures the cookie is only sent over HTTPS connections. If a site is accessed over HTTP, the browser refuses to send this cookie. This prevents session hijacking via Man-in-the-Middle attacks on unsecured networks where an attacker could intercept unencrypted HTTP traffic and steal session tokens."},
+  {q:"The __Host- cookie prefix enforces which security properties?",opts:["Only HttpOnly flag","Secure flag, Path=/, and prevents subdomain sending","Only SameSite=Strict","Only encryption"],ans:1,exp:"The __Host- prefix is the strictest cookie prefix. It forces the cookie to have the Secure flag (HTTPS only), sets Path=/ (available to entire site), and prevents it from being sent to subdomains. Browsers enforce these properties automatically when they see the __Host- prefix, providing security guarantees that the server cannot otherwise verify."},
+  {q:"Session ID Quality requires that identifiers be:",opts:["Sequential numbers for easy tracking","Cryptographically strong, random, and long to resist guessing","Short and memorable for users","Based on the user's IP address"],ans:1,exp:"Session IDs must be generated using cryptographically secure random number generators (CSPRNGs) and must be sufficiently long (at least 128 bits). Predictable or sequential session IDs allow attackers to guess valid tokens and hijack sessions. Modern attackers use AI-powered scanning and cheap cloud GPUs to test millions of combinations in seconds against weak session ID generation."},
+  {q:"What is the purpose of Absolute Timeouts in session management?",opts:["To save server memory","To force re-authentication after a set duration regardless of activity, limiting the window for stolen session abuse","To improve page load times","To clear browser cache"],ans:1,exp:"Absolute Timeouts force users to re-authenticate after a fixed period (e.g., 24 hours) regardless of how active they have been. This limits the maximum window during which a stolen session token can be abused. Even if an attacker steals a session cookie immediately after login, they cannot use it indefinitely — the absolute timeout will eventually invalidate it."},
+  {q:"Why should sensitive data like user roles be stored server-side rather than inside the cookie?",opts:["To reduce cookie size","To prevent tampering — cookies can be modified by users; server-side storage cannot","To improve encryption speed","To enable cross-domain sharing"],ans:1,exp:"Cookies are client-side data and can be inspected, modified, or forged by users. Storing sensitive attributes like 'isAdmin: true' or user roles inside a cookie invites privilege escalation attacks. The cookie should only hold an opaque, meaningless session ID. All authorization decisions should be made server-side by looking up the session ID in a secure server-side store."},
+  {q:"MFA Bypass via Token Theft has become critical because:",opts:["MFA is no longer effective","87% of successful attacks now involve session hijacking after successful login, making MFA irrelevant once the session is live","Token theft is impossible to detect","MFA tokens never expire"],ans:1,exp:"Since 87% of successful attacks now involve session hijacking, attackers focus on stealing the 'active' digital identity created AFTER a successful MFA login. Once the session token is stolen, the attacker inherits all the user's privileges — including those granted by MFA — without ever needing to bypass the MFA challenge itself. This is why session security is as critical as authentication security."},
+  {q:"Adversary-in-the-Middle (AiTM) attacks capture both credentials and session tokens by:",opts:["Installing malware on the user's device","Using proxy tools to sit between the user and the real login page, capturing traffic in real-time","Brute-forcing the password database","Exploiting XSS vulnerabilities"],ans:1,exp:"AiTM attacks use proxy tools (like Evilginx or Modlishka) to sit between the user and the legitimate login page. The attacker presents a fake login page that forwards requests to the real site. The user enters their credentials and completes MFA, but the attacker captures both the credentials AND the authenticated session token in real-time. The attacker can then use the stolen session token to impersonate the user immediately."},
+  {q:"Which session management defense uses behavioral analytics to flag anomalies like 'impossible travel'?",opts:["Mandatory ID Regeneration","Contextual and Continuous Monitoring","Strict Timeouts only","Token Scoping"],ans:1,exp:"Contextual and Continuous Monitoring uses behavioral analytics and machine learning to detect session anomalies. 'Impossible travel' flags logins from two geographically distant cities within minutes of each other — physically impossible for a human. Other anomalies include sudden device changes, unusual User-Agent strings, or access patterns outside normal working hours. These triggers can force re-authentication or terminate suspicious sessions."},
+  {q:"Phishing-Resistant MFA using FIDO2/Passkeys is superior to SMS or TOTP because:",opts:["It is cheaper","It is inherently resistant to session-stealing AiTM attacks and cannot be phished","It requires no hardware","It works offline"],ans:1,exp:"FIDO2/WebAuthn with Passkeys uses public-key cryptography bound to the origin domain. The private key never leaves the user's device, and the authentication response is cryptographically tied to the legitimate domain. Even if an attacker runs an AiTM proxy, they cannot replay the authentication response on the real site because the cryptographic proof is domain-specific. This makes FIDO2 inherently phishing-resistant, unlike SMS or TOTP which can be intercepted or phished."},
+
+  // ── SECURITY SHIFT-LEFT & ZERO TRUST ───────────────────────────────────────
+  {q:"Shift-Left Security integrates security testing into which phase of development?",opts:["Only after deployment","Directly into the CI/CD pipeline during design and development phases","Only during maintenance","Only during user acceptance testing"],ans:1,exp:"Shift-Left Security moves security testing (SAST, DAST, SCA) directly into the CI/CD pipeline. Vulnerabilities are caught during the design and development phases rather than after deployment. This is significantly cheaper and faster than finding vulnerabilities in production. Tools like SonarQube, Checkmarx, and OWASP Dependency-Check scan code as developers write it."},
+  {q:"Zero Trust Architecture operates on which fundamental principle?",opts:["Trust but verify","Never trust, always verify — every request requires explicit identity and intent verification","Trust internal network traffic by default","Verify only external requests"],ans:1,exp:"Zero Trust Architecture operates on 'Never trust, always verify.' Every request — whether from inside or outside the network — requires explicit verification of identity, device health, and intent. There is no implicit trust based on network location. This model is essential in 2026 because perimeter-based security is ineffective against sophisticated insiders, compromised credentials, and lateral movement by attackers who have already breached the network edge."},
+  {q:"Immutable Infrastructure eliminates configuration drift by:",opts:["Using version control for configuration files","Replacing servers entirely rather than updating them in-place","Taking daily snapshots of running servers","Using only containerized applications"],ans:1,exp:"Immutable Infrastructure treats servers as disposable cattle, not pets. Instead of patching a live server (which can fail partially, leave remnants, or introduce undocumented changes), organizations build a new server image with all updates applied, test it thoroughly, and replace the old server entirely. This guarantees that every server in production matches the approved, audited configuration exactly — eliminating configuration drift and reducing opportunities for long-term malware persistence."}
+];
+
+
+let currentQ = 0;
+const state = Array(questions.length).fill(null).map(() => ({selected:null,review:false}));
+let currentFilter = 'all';
+let resultData = [];
+
+function renderQuestion() {
+  const q = questions[currentQ], s = state[currentQ];
+  document.getElementById('qNumLabel').textContent = `Question ${currentQ+1} of ${questions.length}`;
+  document.getElementById('questionText').textContent = q.q;
+  const c = document.getElementById('optionsContainer');
+  c.innerHTML = '';
+  q.opts.forEach((opt,i) => {
+    const d = document.createElement('div');
+    d.className = 'option' + (s.selected===i?' selected':'');
+    d.innerHTML = `<div class="option-dot"></div><span>${opt}</span>`;
+    d.onclick = () => { state[currentQ].selected=i; renderQuestion(); renderGrid(); updateStatus(); };
+    c.appendChild(d);
+  });
+
+  // Update review button state
+  const reviewBtn = document.getElementById('reviewBtn');
+  if (s.review) {
+    reviewBtn.classList.add('active-review');
+    reviewBtn.textContent = 'Marked for Review';
+  } else {
+    reviewBtn.classList.remove('active-review');
+    reviewBtn.textContent = 'Mark for Review';
+  }
+
+  renderGrid();
+}
+
+function hutSVG(fc,num,active) {
+  const lc = fc==='hut-unanswered'?'dark':'light';
+  const st = active?' stroke="#2563eb" stroke-width="2.5"':'';
+  return `<div class="q-icon-wrap" onclick="goTo(${num-1})"><svg class="q-svg" viewBox="0 0 30 30"><polygon points="15,3 27,13 27,27 3,27 3,13" class="${fc}"${st}/></svg><span class="q-num-label ${lc}">${num}</span><div class="q-tooltip">Q${num}</div></div>`;
+}
+
+function renderGrid() {
+  document.getElementById('qGrid').innerHTML = state.map((s,i) => {
+    let c;
+    if(i===currentQ) c='hut-active';
+    else if(s.selected!==null&&s.review) c='hut-rev-ans';
+    else if(s.review) c='hut-review';
+    else if(s.selected!==null) c='hut-answered';
+    else c='hut-unanswered';
+    return hutSVG(c,i+1,i===currentQ);
+  }).join('');
+}
+
+function updateStatus() {
+  document.getElementById('answeredCount').textContent = state.filter(s=>s.selected!==null).length+' answered';
+  document.getElementById('reviewCount').textContent = state.filter(s=>s.review).length+' review';
+}
+
+function clearResponse() { 
+  state[currentQ].selected=null; 
+  renderQuestion(); 
+  renderGrid(); 
+  updateStatus(); 
+}
+
+function markReview() { 
+  state[currentQ].review=!state[currentQ].review; 
+  renderQuestion();
+  renderGrid(); 
+  updateStatus(); 
+}
+
+function goTo(idx) { 
+  if(idx<0||idx>=questions.length) return; 
+  currentQ=idx; 
+  renderQuestion(); 
+  updateStatus(); 
+}
+
+function submitQuiz() {
+  const unanswered = state.filter(s=>s.selected===null).length;
+  if(unanswered>0 && !confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) return;
+  showResults();
+}
+
+function showResults() {
+  let correct=0,wrong=0,skipped=0;
+  resultData = questions.map((q,i) => {
+    const sel = state[i].selected;
+    let status;
+    if(sel===null){ skipped++; status='skip'; }
+    else if(sel===q.ans){ correct++; status='correct'; }
+    else{ wrong++; status='wrong'; }
+    return {q,sel,status};
+  });
+
+  const pct = Math.round((correct/questions.length)*100);
+  document.getElementById('scoreBig').textContent = `${correct}/${questions.length}`;
+  document.getElementById('scorePct').textContent = `${pct}% Score`;
+
+  const passBadge = document.getElementById('passBadge');
+  if (pct >= 75) {
+    passBadge.textContent = 'PASS';
+    passBadge.style.background = 'rgba(22, 163, 74, 0.3)';
+    passBadge.style.color = '#dcfce7';
+  } else if (pct >= 60) {
+    passBadge.textContent = 'NEEDS IMPROVEMENT';
+    passBadge.style.background = 'rgba(234, 88, 12, 0.3)';
+    passBadge.style.color = '#ffedd5';
+  } else {
+    passBadge.textContent = 'BELOW PASS MARK';
+    passBadge.style.background = 'rgba(220, 38, 38, 0.3)';
+    passBadge.style.color = '#fee2e2';
+  }
+
+  document.getElementById('statCorrect').textContent = correct;
+  document.getElementById('statWrong').textContent = wrong;
+  document.getElementById('statSkipped').textContent = skipped;
+
+  renderResultList();
+  document.getElementById('quizScreen').style.display='none';
+  document.getElementById('resultScreen').style.display='flex';
+  document.getElementById('resultScreen').style.flexDirection='column';
+  window.scrollTo(0,0);
+}
+
+function renderResultList() {
+  const list = document.getElementById('resultList');
+  const filtered = resultData.filter(d => currentFilter==='all' || d.status===currentFilter);
+  if(filtered.length===0){ list.innerHTML='<p style="text-align:center;color:#888;padding:30px;">No questions in this category.</p>'; return; }
+  list.innerHTML = filtered.map((d) => {
+    const origIdx = resultData.indexOf(d);
+    const {q,sel,status} = d;
+    const cardCls = status==='correct'?'correct-card':status==='wrong'?'wrong-card':'skip-card';
+    const badge = status==='correct'
+      ? '<span class="rc-badge badge-correct">Correct</span>'
+      : status==='wrong'
+        ? '<span class="rc-badge badge-wrong">Wrong</span>'
+        : '<span class="rc-badge badge-skip">Skipped</span>';
+    const optsHtml = q.opts.map((opt,oi) => {
+      let cls='rc-opt', icon='';
+      if(oi===q.ans){ cls+=' opt-correct'; icon='<span class="opt-icon">&#10004;</span>'; }
+      else if(oi===sel&&sel!==q.ans){ cls+=' opt-wrong'; icon='<span class="opt-icon">&#10008;</span>'; }
+      return `<div class="${cls}">${icon}<span>${opt}</span></div>`;
+    }).join('');
+    return `<div class="result-card ${cardCls}">
+      <div class="rc-header"><span class="rc-qnum">Q${origIdx+1}</span>${badge}</div>
+      <div class="rc-question">${q.q}</div>
+      <div class="rc-opts">${optsHtml}</div>
+      <div class="rc-explanation"><strong>Explanation:</strong> ${q.exp}</div>
+    </div>`;
+  }).join('');
+}
+
+function applyFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.className='filter-btn');
+  btn.className = `filter-btn active-${f}`;
+  renderResultList();
+}
+
+function retakeQuiz() {
+  state.forEach(s=>{s.selected=null;s.review=false;});
+  currentQ=0; currentFilter='all';
+  document.getElementById('resultScreen').style.display='none';
+  document.getElementById('quizScreen').style.display='flex';
+  document.querySelectorAll('.filter-btn').forEach((b,i)=>{b.className='filter-btn'+(i===0?' active-all':'');});
+  renderQuestion(); updateStatus();
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('quizScreen').style.display === 'none') return;
+  if (e.key === 'ArrowRight') goTo(currentQ + 1);
+  if (e.key === 'ArrowLeft') goTo(currentQ - 1);
+  if (e.key >= '1' && e.key <= '4') {
+    const idx = parseInt(e.key) - 1;
+    if (idx < questions[currentQ].opts.length) {
+      state[currentQ].selected = idx;
+      renderQuestion(); renderGrid(); updateStatus();
+    }
+  }
+});
+
+renderQuestion();
+updateStatus();
+</script>
+</body>
+</html>
